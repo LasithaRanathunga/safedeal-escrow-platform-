@@ -2,6 +2,7 @@ import Header from "@/containers/Header";
 import HeroSection from "@/containers/HeroSection";
 import Features from "@/containers/Features";
 import HowItWorks from "@/containers/HowItWorks";
+import Footer from "@/containers/footer";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <HeroSection />
       <Features />
       <HowItWorks />
+      <Footer />
     </>
   );
 }

@@ -34,7 +34,7 @@ export default function Header() {
           className={cn(
             "mx-auto mt-2 w-full px-6 transition-all duration-300 lg:px-12",
             isScrolled &&
-              "bg-background/50 max-w-4xl rounded-2xl border backdrop-blur-lg lg:px-5"
+              "bg-background/50 max-w-6xl rounded-2xl border backdrop-blur-lg lg:px-5"
           )}
         >
           <div className="relative flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
@@ -58,7 +58,7 @@ export default function Header() {
             </div>
 
             <div className="absolute inset-0 m-auto hidden size-fit lg:block">
-              <ul className="flex gap-14 text-2xl font-semibold">
+              <ul className="flex gap-14 text-xl lg:text-2xl font-semibold">
                 {menuItems.map((item, index) => (
                   <li key={index}>
                     <Link

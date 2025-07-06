@@ -1,5 +1,6 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 
+import LandingPage from "./containers/LandingPage";
 import Home from "./pages/Home";
 
 import "./App.css";
@@ -7,7 +8,13 @@ import "./App.css";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Home />,
+    element: <LandingPage />,
+    children: [
+      {
+        index: true,
+        element: <Home />,
+      },
+    ],
   },
 ]);
 

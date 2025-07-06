@@ -5,11 +5,17 @@ import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
-const menuItems = [
-  { name: "Features", href: "#link" },
-  { name: "How It Works", href: "#link" },
-  { name: "Pricing", href: "#link" },
-  { name: "About", href: "#link" },
+type MenuItem = {
+  name: string;
+  href: string;
+  type: "a" | "nav";
+};
+
+const menuItems: MenuItem[] = [
+  { name: "Features", href: "#features", type: "a" },
+  { name: "How It Works", href: "#how-it-works", type: "a" },
+  { name: "Pricing", href: "#link", type: "nav" },
+  { name: "About", href: "#link", type: "nav" },
 ];
 
 export default function Header() {
@@ -61,12 +67,21 @@ export default function Header() {
               <ul className="flex gap-14 text-xl lg:text-2xl font-semibold">
                 {menuItems.map((item, index) => (
                   <li key={index}>
-                    <Link
-                      to={item.href}
-                      className="text-muted-foreground hover:text-accent-foreground block duration-150"
-                    >
-                      <span>{item.name}</span>
-                    </Link>
+                    {item.type === "nav" ? (
+                      <Link
+                        to={item.href}
+                        className="text-muted-foreground hover:text-accent-foreground block duration-150"
+                      >
+                        <span>{item.name}</span>
+                      </Link>
+                    ) : (
+                      <a
+                        href={item.href}
+                        className="text-muted-foreground hover:text-accent-foreground block duration-150"
+                      >
+                        <span>{item.name}</span>
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

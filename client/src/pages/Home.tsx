@@ -2,7 +2,7 @@ import Header from "@/containers/Header";
 import HeroSection from "@/containers/HeroSection";
 import Features from "@/containers/Features";
 import HowItWorks from "@/containers/HowItWorks";
-import Footer from "@/containers/footer";
+import Footer from "@/containers/Footer";
 
 export default function Home() {
   return (

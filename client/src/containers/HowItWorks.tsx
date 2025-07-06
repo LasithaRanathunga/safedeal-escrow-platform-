@@ -54,7 +54,10 @@ const steps: Step[] = [
 
 export default function HowItWorks() {
   return (
-    <div className="max-w-screen-lg mx-auto py-12 md:py-20 px-6">
+    <div
+      id="how-it-works"
+      className="max-w-screen-lg mx-auto py-12 md:py-20 px-6"
+    >
       <div className="text-center mb-24">
         <h2 className="text-balance text-4xl font-semibold lg:text-5xl">
           Secure, Simple, and Flexible

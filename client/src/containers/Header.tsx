@@ -12,8 +12,8 @@ type MenuItem = {
 };
 
 const menuItems: MenuItem[] = [
-  { name: "Features", href: "#features", type: "a" },
-  { name: "How It Works", href: "#how-it-works", type: "a" },
+  { name: "Features", href: "/#features", type: "a" },
+  { name: "How It Works", href: "/#how-it-works", type: "a" },
   { name: "Pricing", href: "#link", type: "nav" },
   { name: "About", href: "#link", type: "nav" },
 ];
@@ -109,7 +109,7 @@ export default function Header() {
                   size="lg"
                   className={cn(isScrolled && "lg:hidden")}
                 >
-                  <Link to="#">
+                  <Link to="/log-in">
                     <span>Login</span>
                   </Link>
                 </Button>
@@ -118,7 +118,7 @@ export default function Header() {
                   size="lg"
                   className={cn(isScrolled && "lg:hidden")}
                 >
-                  <Link to="#">
+                  <Link to="/sign-up">
                     <span>Sign Up</span>
                   </Link>
                 </Button>

@@ -1,4 +1,3 @@
-import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -39,7 +38,6 @@ export default function LogIn() {
     <div className="h-screen flex items-center justify-center pt-16">
       <div className="w-full  grid lg:grid-cols-2 p-4">
         <div className="max-w-md m-auto w-full flex flex-col items-center">
-          <Logo size="sm" />
           <p className="mt-8 text-2xl font-semibold tracking-tight">
             Welcome Back to SafeDeal
           </p>

@@ -36,6 +36,15 @@ export default function SignUp() {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     console.log(data);
+    fetch("http://localhost:3000/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "Application/json",
+      },
+      body: JSON.stringify(data),
+    }).then((res) => {
+      console.log(res);
+    });
   };
 
   return (

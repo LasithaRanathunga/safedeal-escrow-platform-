@@ -2,12 +2,27 @@ import express from "express";
 
 const app = express();
 
+// CORS middleware
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*"); // Allow all origins
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200); // Handle preflight requests
+  }
+
+  next();
+});
+
 // Middleware to parse JSON bodies
 app.use(express.json());
 
 // Sample route
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
+app.post("/", (req, res) => {
+  console.log("Received a GET request");
+  console.log(req.body);
+  res.json({ message: "Hello from backend!" });
 });
 
 app.listen(3000, () => {

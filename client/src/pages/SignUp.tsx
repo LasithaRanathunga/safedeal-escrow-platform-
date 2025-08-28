@@ -16,14 +16,19 @@ import { z } from "zod";
 
 import signinImage from "../assets/signin.png";
 
-const formSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8, "Password must be at least 8 characters long"),
-  confirmpassword: z
-    .string()
-    .min(8, "Password must be at least 8 characters long"),
-  fullname: z.string().min(1, "Full name is required"),
-});
+const formSchema = z
+  .object({
+    email: z.string().email(),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+    confirmpassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters long"),
+    fullname: z.string().min(1, "Full name is required"),
+  })
+  .refine((data) => data.password === data.confirmpassword, {
+    message: "Passwords do not match",
+    path: ["confirmpassword"], // 👈 error will show under confirm password field
+  });
 
 export default function SignUp() {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -34,17 +39,43 @@ export default function SignUp() {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
-    fetch("http://localhost:3000/", {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    // console.log(data);
+    // fetch("http://localhost:3000/auth/signup", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "Application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // }).then((res) => {
+    //   if (res.ok !== undefined && res.ok === false) {
+    //     const data = res.json();
+
+    //     console.log(data);
+    //     return;
+    //   }
+    //   console.log(res);
+    // });
+
+    const res = await fetch("http://localhost:3000/auth/signup", {
       method: "POST",
       headers: {
         "Content-Type": "Application/json",
       },
       body: JSON.stringify(data),
-    }).then((res) => {
-      console.log(res);
     });
+
+    if (res.ok !== undefined && res.ok === false) {
+      const data = await res.json();
+
+      form.setError("root.serverError", {
+        type: res.status.toString(),
+        message: data.message,
+      });
+
+      console.log("Data:", data);
+    }
+    console.log(res);
   };
 
   return (
@@ -140,6 +171,11 @@ export default function SignUp() {
                   </FormItem>
                 )}
               />
+              {form.formState.errors.root?.serverError && (
+                <FormMessage>
+                  {form.formState.errors.root.serverError.message}
+                </FormMessage>
+              )}
               <Button
                 type="submit"
                 className="mt-4 w-full text-lg cursor-pointer"

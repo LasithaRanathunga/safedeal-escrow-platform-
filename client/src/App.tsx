@@ -4,6 +4,7 @@ import LandingPage from "./containers/LandingPage";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
+import Dashboard from "./pages/Dashboard";
 
 import "./App.css";
 
@@ -26,6 +27,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  { path: "/dashboard", element: <Dashboard /> },
 ]);
 
 function App() {

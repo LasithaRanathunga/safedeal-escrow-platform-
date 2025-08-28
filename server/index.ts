@@ -1,5 +1,7 @@
 import express from "express";
 
+import authRouter from "./auth/auth";
+
 const app = express();
 
 // CORS middleware
@@ -17,6 +19,8 @@ app.use((req, res, next) => {
 
 // Middleware to parse JSON bodies
 app.use(express.json());
+
+app.use("/auth", authRouter);
 
 // Sample route
 app.post("/", (req, res) => {

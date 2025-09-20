@@ -1,6 +1,7 @@
 import express from "express";
 
-import authRouter from "./auth/auth";
+import authRouter from "./auth/authRouts";
+import { authenticateToken } from "./auth/authUtils";
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use((req, res, next) => {
 
   next();
 });
+
+app.use(authenticateToken);
 
 // Middleware to parse JSON bodies
 app.use(express.json());

@@ -16,6 +16,12 @@ import { z } from "zod";
 
 import signinImage from "../assets/signin.png";
 
+type SignupResponse = {
+  message?: string;
+  accessToken: string;
+  error?: unknown; // optional, since sometimes you return error details
+};
+
 const formSchema = z
   .object({
     email: z.string().email(),
@@ -40,22 +46,7 @@ export default function SignUp() {
   });
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    // console.log(data);
-    // fetch("http://localhost:3000/auth/signup", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "Application/json",
-    //   },
-    //   body: JSON.stringify(data),
-    // }).then((res) => {
-    //   if (res.ok !== undefined && res.ok === false) {
-    //     const data = res.json();
-
-    //     console.log(data);
-    //     return;
-    //   }
-    //   console.log(res);
-    // });
+    console.log("on submit called");
 
     const res = await fetch("http://localhost:3000/auth/signup", {
       method: "POST",
@@ -65,17 +56,22 @@ export default function SignUp() {
       body: JSON.stringify(data),
     });
 
+    let resData: SignupResponse;
+
     if (res.ok !== undefined && res.ok === false) {
-      const data = await res.json();
+      resData = await res.json();
 
       form.setError("root.serverError", {
         type: res.status.toString(),
-        message: data.message,
+        message: resData.message,
       });
 
-      console.log("Data:", data);
+      return;
     }
-    console.log(res);
+
+    resData = await res.json();
+
+    localStorage.setItem("accessToken", resData.accessToken);
   };
 
   return (

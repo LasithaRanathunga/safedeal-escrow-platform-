@@ -1,9 +1,12 @@
 import { ReceiptText } from "lucide-react";
 import Logo from "@/components/Logo";
+import UserAccount from "@/components/UserAccount";
+import { Separator } from "@/components/ui/separator";
 
 import {
   SidebarProvider,
   SidebarTrigger,
+  SidebarFooter,
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -32,11 +35,12 @@ export default function AppSidebar() {
             <SidebarGroupLabel className="py-8">
               <Logo size="xs" />
             </SidebarGroupLabel>
-            <SidebarGroupContent>
+            <Separator />
+            <SidebarGroupContent className="py-5 font-semibold">
               <SidebarMenu>
                 {items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
+                    <SidebarMenuButton className="text-md" asChild>
                       <a href={item.url}>
                         <item.icon />
                         <span>{item.title}</span>
@@ -48,6 +52,12 @@ export default function AppSidebar() {
             </SidebarGroupContent>
           </SidebarGroup>
         </SidebarContent>
+        <SidebarFooter>
+          <Separator />
+          <SidebarGroup>
+            <UserAccount username="Kevin K." email="lasitha@gmail.com" />
+          </SidebarGroup>
+        </SidebarFooter>
       </Sidebar>
 
       <SidebarTrigger />

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/timeline";
 
 import FileUploadDialog from "./FileUploadDialog";
+import CommentSection from "./CommentSection";
 
 const items = [
   {
@@ -72,6 +73,8 @@ export default function ContractTimeline() {
             <FileUploadDialog label="Upload Preview" />
             <br />
             <FileUploadDialog label="Upload Final" />
+
+            <CommentSection />
           </TimelineContent>
         </TimelineItem>
       ))}

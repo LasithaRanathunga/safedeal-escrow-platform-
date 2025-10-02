@@ -31,7 +31,7 @@ const items: Record<string, Item> = {
           relative before:absolute before:inset-0 before:-ms-1
           before:bg-[repeating-linear-gradient(to_right,transparent_0,transparent_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)-1px),var(--border)_calc(var(--tree-indent)))]
         </p>
-        <Button variant="ghost" size={"sm"} className="p-0 mt-2">
+        <Button asChild variant="ghost" size={"sm"} className="p-0 mt-2">
           Reply
         </Button>
       </div>

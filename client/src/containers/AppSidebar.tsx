@@ -2,6 +2,7 @@ import { ReceiptText } from "lucide-react";
 import Logo from "@/components/Logo";
 import UserAccount from "@/components/UserAccount";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 import {
   SidebarProvider,
@@ -35,6 +36,10 @@ export default function AppSidebar() {
             <SidebarGroupLabel className="py-8">
               <Logo size="xs" />
             </SidebarGroupLabel>
+            <Separator />
+            <div className="flex items-center justify-center my-2.5">
+              <Button className="w-2/3">Create Contract</Button>
+            </div>
             <Separator />
             <SidebarGroupContent className="py-5 font-semibold">
               <SidebarMenu>

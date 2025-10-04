@@ -2,7 +2,7 @@ import { ReceiptText } from "lucide-react";
 import Logo from "@/components/Logo";
 import UserAccount from "@/components/UserAccount";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import CreateContractDialog from "./CreateContractDialog";
 
 import {
   SidebarProvider,
@@ -38,7 +38,7 @@ export default function AppSidebar() {
             </SidebarGroupLabel>
             <Separator />
             <div className="flex items-center justify-center my-2.5">
-              <Button className="w-2/3">Create Contract</Button>
+              <CreateContractDialog />
             </div>
             <Separator />
             <SidebarGroupContent className="py-5 font-semibold">

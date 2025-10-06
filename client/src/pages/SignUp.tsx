@@ -19,6 +19,7 @@ import signinImage from "../assets/signin.png";
 type SignupResponse = {
   message?: string;
   accessToken: string;
+  refreshToken: string;
   error?: unknown; // optional, since sometimes you return error details
 };
 
@@ -47,11 +48,12 @@ export default function SignUp() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log("on submit called");
+    console.log(data);
 
     const res = await fetch("http://localhost:3000/auth/signup", {
       method: "POST",
       headers: {
-        "Content-Type": "Application/json",
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     });
@@ -72,6 +74,7 @@ export default function SignUp() {
     resData = await res.json();
 
     localStorage.setItem("accessToken", resData.accessToken);
+    localStorage.setItem("refreshToken", resData.refreshToken);
   };
 
   return (

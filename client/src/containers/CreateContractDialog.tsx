@@ -29,8 +29,10 @@ import { DatePicker } from "./DatePicker";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
+import ApiError from "@/fetch/ApiError";
+import { handleAcessToken } from "@/fetch/fetchWrapper";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 
 const contractSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
@@ -44,6 +46,7 @@ type ContractFormValues = z.infer<typeof contractSchema>;
 
 export default function CreateContractDialog() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<ContractFormValues>({
     resolver: zodResolver(contractSchema),
@@ -54,37 +57,65 @@ export default function CreateContractDialog() {
     },
   });
 
-  async function createContract(data: ContractFormValues) {
-    try {
-      // Get token from localStorage
-      const token = localStorage.getItem("access_token");
-      console.log("Token:", token);
+  // async function createContract(data: ContractFormValues) {
+  //   try {
+  //     // Get token from localStorage
+  //     const token = localStorage.getItem("access_token");
+  //     console.log("Token:", token);
 
-      const response = await fetch("http://localhost:3000/contract/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Send token in Authorization header
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      });
+  //     const response = await fetch("http://localhost:3000/contract/create", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         // Send token in Authorization header
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify(data),
+  //     });
 
-      if (!response.ok) {
-        throw new Error("Failed to create contract");
-      }
+  //     if (!response.ok) {
+  //       const errorBody = await response.json();
+  //       console.log("Error response body:", errorBody);
+  //       throw new Error(errorBody.message || "Failed to create contract");
+  //     }
 
-      const result = await response.json();
-      console.log("Server response:", result);
-    } catch (error) {
-      console.error("Error:", error);
+  //     const result = await response.json();
+  //     console.log("Server response:", result);
+  //   } catch (error) {
+  //     console.log("Error:", error);
+  //   }
+  // }
+
+  async function createContract(data: ContractFormValues, token: string) {
+    const response = await fetch("http://localhost:3000/contract/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // Send token in Authorization header
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new ApiError(
+        errorBody.message || "Failed to create contract",
+        errorBody.code || "API_ERROR"
+      );
     }
+
+    const result = await response.json();
+
+    return result;
   }
 
   async function onSubmit(data: ContractFormValues) {
     console.log("Form submitted:", data);
 
-    await createContract(data);
+    await handleAcessToken(createContract.bind(null, data), () => {
+      navigate("/log-in");
+    });
 
     setOpen(false);
     form.reset();

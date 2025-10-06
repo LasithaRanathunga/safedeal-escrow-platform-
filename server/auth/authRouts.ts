@@ -42,6 +42,7 @@ const signupValidator: ValidationChain[] = [
 
 // ######### Signup Route #########
 router.post("/signup", signupValidator, async (req: Request, res: Response) => {
+  console.log(req.body);
   // check if passwords match
   if (req.body.password !== req.body.confirmpassword) {
     return res.status(400).json({ message: "Passwords do not match" });
@@ -73,12 +74,14 @@ router.post("/signup", signupValidator, async (req: Request, res: Response) => {
   const accessToken = await getAccessToken(user, refreshToken);
 
   // send tokens to the client
-  res.status(201).cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    expires: getTokenExpiry("7d"), // 7 days
-  });
+  // res.status(201).cookie("refreshToken", refreshToken, {
+  //   httpOnly: true,
+  //   secure: false, // false on localhost (true in production w/ HTTPS)
+  //   sameSite: "none", // allows cross-origin requests from localhost
+  //   expires: getTokenExpiry("7d"), // 7 days
+  // });
 
-  res.status(201).json({ accessToken });
+  res.status(201).json({ accessToken, refreshToken });
 });
 
 // ######### Login Route #########
@@ -131,7 +134,7 @@ router.post("/logout", async (req: Request, res: Response) => {
 // ######### Re-New Access Token #########
 router.post("/renew-token", async (req: Request, res: Response) => {
   const refreshToken = req.body.refreshToken;
-
+  console.log("Refresh Token:", refreshToken);
   if (!refreshToken) {
     return res.status(400).json({ message: "Refresh token is required" });
   }

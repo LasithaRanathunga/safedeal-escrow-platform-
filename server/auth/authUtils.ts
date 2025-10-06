@@ -124,8 +124,14 @@ export function authenticateToken(
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN
 
-  if (token == null)
-    return res.sendStatus(401).json({ message: "no token has been sent" }); // if there isn't any token
+  // Check for missing OR "null"/empty token
+  if (!token || token === "null" || token.trim() === "") {
+    return res.status(401).json({
+      status: "error",
+      code: "NO_TOKEN",
+      message: "No token has been sent",
+    });
+  }
 
   jwt.verify(token, accessSecret as string, (err, user) => {
     if (err) {

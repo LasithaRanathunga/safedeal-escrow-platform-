@@ -57,35 +57,6 @@ export default function CreateContractDialog() {
     },
   });
 
-  // async function createContract(data: ContractFormValues) {
-  //   try {
-  //     // Get token from localStorage
-  //     const token = localStorage.getItem("access_token");
-  //     console.log("Token:", token);
-
-  //     const response = await fetch("http://localhost:3000/contract/create", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         // Send token in Authorization header
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //       body: JSON.stringify(data),
-  //     });
-
-  //     if (!response.ok) {
-  //       const errorBody = await response.json();
-  //       console.log("Error response body:", errorBody);
-  //       throw new Error(errorBody.message || "Failed to create contract");
-  //     }
-
-  //     const result = await response.json();
-  //     console.log("Server response:", result);
-  //   } catch (error) {
-  //     console.log("Error:", error);
-  //   }
-  // }
-
   async function createContract(data: ContractFormValues, token: string) {
     const response = await fetch("http://localhost:3000/contract/create", {
       method: "POST",

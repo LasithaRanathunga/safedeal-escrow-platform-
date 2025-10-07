@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import "dotenv/config";
 import type { Request, Response, NextFunction } from "express";
 import db from "../db/db";
+import User from "../models/User";
 
 type JwtPayload = {
   email: string;
@@ -133,7 +134,7 @@ export function authenticateToken(
     });
   }
 
-  jwt.verify(token, accessSecret as string, (err, user) => {
+  jwt.verify(token, accessSecret as string, async (err, user) => {
     if (err) {
       if (err.name === "TokenExpiredError") {
         return res.status(401).json({
@@ -150,8 +151,21 @@ export function authenticateToken(
       });
     }
 
-    (req as any).user = user;
+    // get user data from the database
+    const userData = await db.user.findUnique({
+      where: { email: (user as JwtPayload).email },
+    });
 
-    next();
+    if (userData) {
+      const user = new User(userData.id, userData.name, userData.email);
+      (req as any).user = user;
+      next();
+    } else {
+      return res.status(401).json({
+        status: "error",
+        code: "USER_NOT_FOUND",
+        message: "User not found",
+      });
+    }
   });
 }

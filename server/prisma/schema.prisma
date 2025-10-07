@@ -20,7 +20,8 @@ model user {
   name      String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
-  tokens    refreshToken?
+  token     refreshToken?
+  contracts contract[]    @relation("UserContracts")
 }
 
 model refreshToken {
@@ -30,4 +31,19 @@ model refreshToken {
   userId    Int      @unique
   createdAt DateTime @default(now())
   expiresAt DateTime
+}
+
+model contract {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  owner       user      @relation("UserContracts", fields: [ownerId], references: [id])
+  ownerId     Int
+  seller      Int?
+  buyer       Int?
+  endDate     DateTime?
+  amount      Float?
+  status      String    @default("ACTIVE") // e.g., ACTIVE, COMPLETED
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }

@@ -2,7 +2,7 @@ import ApiError from "./ApiError";
 
 export async function handleAcessToken(
   callback: (token: string) => Promise<undefined>,
-  failAction: () => void
+  failAction?: () => void
 ) {
   try {
     // Get token from localStorage
@@ -43,7 +43,11 @@ export async function handleAcessToken(
       const callbackRes = await callback(token);
       return callbackRes;
     } else {
-      failAction();
+      if (failAction) {
+        failAction();
+      }
+
+      return;
     }
   }
 }

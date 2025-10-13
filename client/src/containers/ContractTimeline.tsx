@@ -13,6 +13,7 @@ import {
 
 import FileUploadDialog from "./FileUploadDialog";
 import CommentSection from "./CommentSection";
+import CreateMilestoneDialog from "./createMilestoneDialog";
 
 const items = [
   {
@@ -75,6 +76,7 @@ export default function ContractTimeline() {
             <FileUploadDialog label="Upload Final" />
 
             <CommentSection />
+            <CreateMilestoneDialog />
           </TimelineContent>
         </TimelineItem>
       ))}

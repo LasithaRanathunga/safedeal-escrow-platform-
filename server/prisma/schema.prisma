@@ -34,16 +34,30 @@ model refreshToken {
 }
 
 model contract {
-  id          Int       @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   title       String
   description String
-  owner       user      @relation("UserContracts", fields: [ownerId], references: [id])
+  owner       user        @relation("UserContracts", fields: [ownerId], references: [id])
   ownerId     Int
   seller      Int?
   buyer       Int?
   endDate     DateTime?
   amount      Float?
-  status      String    @default("ACTIVE") // e.g., ACTIVE, COMPLETED
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  status      String      @default("ACTIVE") // e.g., ACTIVE, COMPLETED
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  milestones  milestone[]
+}
+
+model milestone {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  amount      Float
+  deadline    DateTime
+  order       Int
+  contractId  Int
+  contract    contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

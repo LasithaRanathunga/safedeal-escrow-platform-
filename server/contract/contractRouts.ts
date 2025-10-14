@@ -102,4 +102,32 @@ router.post(
   }
 );
 
+router.get("/getContract/:contractId", async (req: Request, res: Response) => {
+  console.log("Fetching contract with ID:", req.params.contractId);
+
+  const contractId = req.params.contractId;
+
+  try {
+    const contract = await db.contract.findUnique({
+      where: {
+        id: parseInt(contractId, 10),
+      },
+      include: {
+        milestones: true, 
+      },
+    });
+
+    if (!contract) {
+      throw new Error(`Contract with ID ${contractId} not found`);
+    }
+
+    return res.status(200).json({ contract });
+  } catch (error) {
+    console.error("Error fetching contract:", error);
+    res.status(500).json({ message: "Error fetching contract", error });
+  }
+
+  // res.status(200).json({ message: "Fetch contract endpoint" });
+});
+
 export default router;

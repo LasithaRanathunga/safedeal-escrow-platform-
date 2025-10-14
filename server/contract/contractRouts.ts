@@ -3,6 +3,8 @@ import type { NextFunction, Request, Response } from "express";
 import { body } from "express-validator";
 import validateRequest from "../middleware/validateRequest";
 import db from "../db/db";
+import { type milestone } from "@prisma/client";
+// import { PrismaClient, Prisma, type DefaultArgs } from "@prisma/client";
 
 const router = express.Router();
 
@@ -32,6 +34,50 @@ const milestoneValidators = [
     .withMessage("Contract ID must be a positive integer"),
   body("order").isInt().withMessage("Order must be a positive integer"),
 ];
+
+type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
+
+async function updateContractInfo(contractId: string, db: TxClient) {
+  let milestones: milestone[];
+
+  try {
+    milestones = await db.milestone.findMany({
+      where: { contractId: parseInt(contractId, 10) },
+      orderBy: { deadline: "desc" }, // latest deadline first
+    });
+  } catch (error) {
+    console.error("Error fetching milestones:", error);
+    throw new Error("Error fetching milestones");
+  }
+
+  console.log("Fetched milestones:", milestones);
+
+  // Total amount
+  const totalAmount = milestones.reduce(
+    (sum, milestone) => sum + milestone.amount,
+    0
+  );
+
+  // Latest deadline
+  const latestDeadline = milestones.length > 0 ? milestones[0].deadline : null;
+
+  console.log("Total Amount:", totalAmount);
+  console.log("Latest Deadline:", latestDeadline);
+
+  // Update contract
+  try {
+    await db.contract.update({
+      where: { id: parseInt(contractId, 10) },
+      data: {
+        amount: totalAmount,
+        endDate: latestDeadline,
+      },
+    });
+  } catch (error) {
+    console.error("Error updating contract:", error);
+    throw new Error("Error updating contract");
+  }
+}
 
 // Example route for creating a contract
 router.post(
@@ -81,18 +127,27 @@ router.post(
       req.body;
 
     try {
-      const milestone = await db.milestone.create({
-        data: {
-          title,
-          description,
-          amount: Number(amount),
-          deadline: new Date(deadline),
-          order,
-          contractId,
-        },
-      });
+      await db.$transaction(async (tx) => {
+        const milestone = await tx.milestone.create({
+          data: {
+            title,
+            description,
+            amount: Number(amount),
+            deadline: new Date(deadline),
+            order,
+            contractId,
+          },
+        });
 
-      res.status(201).json({ milestone });
+        try {
+          await updateContractInfo(contractId, tx);
+        } catch (error) {
+          console.error("Error updating contract info:", error);
+          throw new Error("Error updating contract info");
+        }
+
+        res.status(201).json({ milestone });
+      });
     } catch (error) {
       console.error("Error creating milestone:", error);
       return res
@@ -113,7 +168,7 @@ router.get("/getContract/:contractId", async (req: Request, res: Response) => {
         id: parseInt(contractId, 10),
       },
       include: {
-        milestones: true, 
+        milestones: true,
       },
     });
 

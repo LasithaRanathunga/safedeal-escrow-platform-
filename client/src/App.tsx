@@ -6,6 +6,8 @@ import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Dashboard from "./pages/Dashboard";
 
+import { fetchContract } from "./dataLoaders/contractLoaders";
+
 import "./App.css";
 
 const router = createBrowserRouter([
@@ -27,7 +29,11 @@ const router = createBrowserRouter([
       },
     ],
   },
-  { path: "/dashboard", element: <Dashboard /> },
+  {
+    path: "/dashboard/:contractId",
+    element: <Dashboard />,
+    loader: fetchContract,
+  },
 ]);
 
 function App() {

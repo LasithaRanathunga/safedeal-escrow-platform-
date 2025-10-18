@@ -86,6 +86,7 @@ router.post("/signup", signupValidator, async (req: Request, res: Response) => {
 
 // ######### Login Route #########
 router.post("/login", async (req: Request, res: Response) => {
+  console.log("Login request body:", req.body);
   const email = req.body.email;
   const password = req.body.password;
 
@@ -93,9 +94,23 @@ router.post("/login", async (req: Request, res: Response) => {
     where: { email: email },
   });
 
-  if (!user || user.password !== password) {
-    return res.status(400).json({ message: "Invalid email or password" });
+  console.log("Found user:", user);
+
+  if (!user) {
+    console.log("User not found");
+    return res.status(400).json({ message: "User not found" });
+  } else {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      console.log("Invalid email or password");
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
   }
+
+  // if (!user || user.password !== password) {
+  //   console.log("Invalid email or password");
+  //   return res.status(400).json({ message: "Invalid email or password" });
+  // }
 
   //create tokens
   const refreshToken = await createRefreshToken(user, "7d");

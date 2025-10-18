@@ -3,8 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import { body } from "express-validator";
 import validateRequest from "../middleware/validateRequest";
 import db from "../db/db";
-import { type milestone } from "@prisma/client";
-// import { PrismaClient, Prisma, type DefaultArgs } from "@prisma/client";
+import { type milestone, type contract } from "@prisma/client";
 
 const router = express.Router();
 
@@ -114,10 +113,6 @@ router.post(
 
 router.post(
   "/createMilestone",
-  (req: Request & { user?: any }, res: Response, next: NextFunction) => {
-    console.log("User making request:", req.user);
-    next();
-  },
   milestoneValidators,
   validateRequest,
   async (req: Request & { user?: any }, res: Response) => {
@@ -128,6 +123,20 @@ router.post(
 
     try {
       await db.$transaction(async (tx) => {
+        const increaseOrder = await tx.milestone.updateMany({
+          where: {
+            contractId: parseInt(contractId, 10),
+            order: {
+              gte: parseInt(order, 10),
+            },
+          },
+          data: {
+            order: {
+              increment: 1,
+            },
+          },
+        });
+
         const milestone = await tx.milestone.create({
           data: {
             title,
@@ -135,7 +144,7 @@ router.post(
             amount: Number(amount),
             deadline: new Date(deadline),
             order,
-            contractId,
+            contractId: parseInt(contractId, 10),
           },
         });
 
@@ -157,32 +166,48 @@ router.post(
   }
 );
 
-router.get("/getContract/:contractId", async (req: Request, res: Response) => {
-  console.log("Fetching contract with ID:", req.params.contractId);
+router.get(
+  "/getContract/:contractId",
+  async (req: Request & { user?: any }, res: Response) => {
+    console.log("Fetching contract with ID:", req.params.contractId);
 
-  const contractId = req.params.contractId;
+    const contractId = req.params.contractId;
 
-  try {
-    const contract = await db.contract.findUnique({
-      where: {
-        id: parseInt(contractId, 10),
-      },
-      include: {
-        milestones: true,
-      },
-    });
+    try {
+      const contract = await db.contract.findUnique({
+        where: {
+          id: parseInt(contractId, 10),
+        },
+        include: {
+          milestones: true,
+        },
+      });
 
-    if (!contract) {
-      throw new Error(`Contract with ID ${contractId} not found`);
+      if (!contract) {
+        throw new Error(`Contract with ID ${contractId} not found`);
+      }
+
+      const contractWithRole = {
+        ...contract,
+        role: undefined as string | undefined,
+      };
+
+      if (contract.buyer === parseInt(req.user.id, 10)) {
+        contractWithRole.role = "buyer";
+      } else if (contract.seller === parseInt(req.user.id, 10)) {
+        contractWithRole.role = "seller";
+      }
+
+      console.log("Fetched contract:", contract.seller, "user", req.user.id);
+
+      return res.status(200).json({ contract: contractWithRole });
+    } catch (error) {
+      console.error("Error fetching contract:", error);
+      res.status(500).json({ message: "Error fetching contract", error });
     }
 
-    return res.status(200).json({ contract });
-  } catch (error) {
-    console.error("Error fetching contract:", error);
-    res.status(500).json({ message: "Error fetching contract", error });
+    // res.status(200).json({ message: "Fetch contract endpoint" });
   }
-
-  // res.status(200).json({ message: "Fetch contract endpoint" });
-});
+);
 
 export default router;

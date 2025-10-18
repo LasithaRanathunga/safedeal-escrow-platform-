@@ -5,18 +5,21 @@ import { Separator } from "@/components/ui/separator";
 import { useLoaderData } from "react-router";
 
 export default function Dashboard() {
-  // const { contractId } = useParams<{ contractId: string }>();
-
   const contractData = useLoaderData() as any;
-  console.log("Loaded contract data:", contractData);
+
+  const { milestones, ...contractStats } = contractData.contract;
+
+  // const milestones = contractInfo.milestones;
+
+  console.log("Loaded contract data:", contractStats, milestones);
 
   return (
     <div className="flex h-screen w-screen">
       <AppSidebar />
       <div className=" w-full overflow-y-auto p-8">
-        <ContractStats />
+        <ContractStats contractStats={contractStats} />
         <Separator className="my-4" />
-        <ContractTimeline />
+        <ContractTimeline milestones={milestones} />
       </div>
     </div>
   );

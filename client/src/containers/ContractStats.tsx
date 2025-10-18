@@ -1,31 +1,50 @@
 import { AnimatedBackground } from "@/components/ui/animated-background";
+import { Description } from "@radix-ui/react-dialog";
 
-export default function ContractStats() {
+type ConstractStatsProps = {
+  title: string;
+  description: string;
+  amount: number;
+  endDate: string;
+  status: string;
+  role: "buyer" | "seller";
+};
+export default function ContractStats({
+  contractStats,
+}: {
+  contractStats: ConstractStatsProps;
+}) {
   const ITEMS = [
     {
       id: 1,
       title: "Contract",
-      description: "Website Redesign project",
+      description: contractStats.title,
     },
     {
       id: 2,
-      title: "Seller",
+      title: contractStats.role === "seller" ? "Buyer" : "Seller",
       description: "Jane S.",
     },
     {
       id: 3,
       title: "Total Value",
-      description: "$2000",
+      description: `${
+        contractStats.amount
+          ? "$ " + contractStats.amount.toLocaleString()
+          : "N/A "
+      }`,
     },
     {
       id: 4,
       title: "Deadline",
-      description: "30 Oct 2025",
+      description: contractStats.endDate
+        ? new Date(contractStats.endDate).toLocaleDateString()
+        : "N/A",
     },
     {
       id: 5,
       title: "Status",
-      description: "Active",
+      description: contractStats.status,
     },
   ];
 

@@ -30,8 +30,31 @@ export default function LogIn() {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    try {
+      const result = await fetch("http://localhost:3000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!result.ok) {
+        console.error("Login failed with status:", result.status);
+        return;
+      }
+
+      const resData = (await result.json()) as {
+        accessToken: string;
+        refreshToken: string;
+      };
+
+      localStorage.setItem("accessToken", resData.accessToken);
+      localStorage.setItem("refreshToken", resData.refreshToken);
+    } catch (error) {
+      console.error("Error during login:", error);
+    }
   };
 
   return (

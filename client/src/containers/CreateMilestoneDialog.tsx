@@ -22,6 +22,7 @@ import { z } from "zod";
 import ApiError from "@/fetch/ApiError";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
 import { useState } from "react";
+import { useParams } from "react-router";
 
 const milestoneSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
@@ -34,8 +35,15 @@ const milestoneSchema = z.object({
 
 type MilestoneFormValues = z.infer<typeof milestoneSchema>;
 
-export default function CreateMilestoneDialog() {
+export default function CreateMilestoneDialog({
+  updateItems,
+  order,
+}: {
+  updateItems: (newItem: any, index: number) => void;
+  order: number;
+}) {
   const [open, setOpen] = useState(false);
+  const { contractId } = useParams();
 
   const form = useForm<MilestoneFormValues>({
     resolver: zodResolver(milestoneSchema),
@@ -48,7 +56,7 @@ export default function CreateMilestoneDialog() {
   async function createMilestone(data: MilestoneFormValues, token: string) {
     console.log("Creating milestone with data:", data);
 
-    const payload = { ...data, contractId: 1, order: 1 };
+    const payload = { ...data, contractId: contractId, order: order + 1 };
 
     const response = await fetch(
       "http://localhost:3000/contract/createMilestone",
@@ -79,6 +87,24 @@ export default function CreateMilestoneDialog() {
     console.log("Form submitted:", data);
 
     await handleAcessToken(createMilestone.bind(null, data));
+
+    const newItem = {
+      id: order + 1,
+      date: new Date().toLocaleDateString("en-GB", {
+        year: "numeric", // "2025"
+        month: "long", // "October"
+        day: "numeric", // "15"
+      }),
+      deadline: new Date(data.deadline).toLocaleDateString("en-GB", {
+        year: "numeric", // "2025"
+        month: "long", // "October"
+        day: "numeric", // "15"
+      }),
+      title: data.title,
+      description: data.description,
+    };
+
+    updateItems(newItem, order);
 
     setOpen(false);
     form.reset();

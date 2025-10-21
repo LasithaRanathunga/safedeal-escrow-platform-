@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import authRouter from "./auth/authRouts";
 import { authenticateToken } from "./auth/authUtils";
 import contractRouts from "./contract/contractRouts";
+import userRouts from "./user/userRouts";
 import cors from "cors";
 
 const app = express();
@@ -38,6 +39,8 @@ app.use("/auth", authRouter);
 app.use(authenticateToken);
 
 app.use("/contract", contractRouts);
+
+app.use("/user", userRouts);
 
 // Sample route
 app.post("/", (req, res) => {

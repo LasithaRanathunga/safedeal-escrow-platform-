@@ -184,7 +184,13 @@ router.get(
       });
 
       if (!contract) {
-        throw new Error(`Contract with ID ${contractId} not found`);
+        return res
+          .status(404)
+          .json({
+            status: "error",
+            code: "NO_CONTRACT_FOUND",
+            message: "Contract not found",
+          });
       }
 
       const contractWithRole = {

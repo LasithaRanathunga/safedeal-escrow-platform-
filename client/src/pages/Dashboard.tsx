@@ -7,6 +7,8 @@ import { useLoaderData } from "react-router";
 export default function Dashboard() {
   const contractData = useLoaderData() as any;
 
+  console.log("Dashboard loader data:", contractData);
+
   const { milestones, ...contractStats } = contractData.contract;
 
   // const milestones = contractInfo.milestones;

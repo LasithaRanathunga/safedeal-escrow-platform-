@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
 
 import LandingPage from "./containers/LandingPage";
 import Home from "./pages/Home";
@@ -28,6 +28,14 @@ const router = createBrowserRouter([
         element: <LogIn />,
       },
     ],
+  },
+  {
+    path: "/dashboard",
+    element: <Navigate to="/dashboard/contracts" replace />,
+  },
+
+  {
+    path: "/dashboard/contracts",
   },
   {
     path: "/dashboard/:contractId",

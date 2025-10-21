@@ -1,5 +1,6 @@
 import { AnimatedBackground } from "@/components/ui/animated-background";
-import { Description } from "@radix-ui/react-dialog";
+import { useState, type ReactNode } from "react";
+import InviteDialog from "./InviteDialog";
 
 type ConstractStatsProps = {
   title: string;
@@ -8,13 +9,26 @@ type ConstractStatsProps = {
   endDate: string;
   status: string;
   role: "buyer" | "seller";
+  seller: number;
+  buyer: number;
 };
+
+function hasPartner(contractStats: ConstractStatsProps) {
+  if (contractStats.role === "buyer" && contractStats.seller) {
+    return "Seller name";
+  } else if (contractStats.role === "seller" && contractStats.buyer) {
+    return "Buyer name";
+  } else {
+    return <InviteDialog />;
+  }
+}
+
 export default function ContractStats({
   contractStats,
 }: {
   contractStats: ConstractStatsProps;
 }) {
-  const ITEMS = [
+  const [items, setItems] = useState([
     {
       id: 1,
       title: "Contract",
@@ -23,7 +37,8 @@ export default function ContractStats({
     {
       id: 2,
       title: contractStats.role === "seller" ? "Buyer" : "Seller",
-      description: "Jane S.",
+      // description: "Jane S.",
+      description: hasPartner(contractStats),
     },
     {
       id: 3,
@@ -46,7 +61,40 @@ export default function ContractStats({
       title: "Status",
       description: contractStats.status,
     },
-  ];
+  ]);
+  // const ITEMS = [
+  //   {
+  //     id: 1,
+  //     title: "Contract",
+  //     description: contractStats.title,
+  //   },
+  //   {
+  //     id: 2,
+  //     title: contractStats.role === "seller" ? "Buyer" : "Seller",
+  //     description: "Jane S.",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Total Value",
+  //     description: `${
+  //       contractStats.amount
+  //         ? "$ " + contractStats.amount.toLocaleString()
+  //         : "N/A "
+  //     }`,
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "Deadline",
+  //     description: contractStats.endDate
+  //       ? new Date(contractStats.endDate).toLocaleDateString()
+  //       : "N/A",
+  //   },
+  //   {
+  //     id: 5,
+  //     title: "Status",
+  //     description: contractStats.status,
+  //   },
+  // ];
 
   return (
     <div className="grid grid-cols-2  md:grid-cols-5">
@@ -59,7 +107,7 @@ export default function ContractStats({
         }}
         enableHover
       >
-        {ITEMS.map((item, index) => (
+        {items.map((item, index) => (
           <div key={index} data-id={`card-${index}`}>
             <div className="flex select-none flex-col space-y-1 p-4">
               <h3 className="text-base font-medium text-zinc-800 dark:text-zinc-50">

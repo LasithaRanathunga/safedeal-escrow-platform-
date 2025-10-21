@@ -1,6 +1,7 @@
 import { type LoaderFunctionArgs } from "react-router";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
 import ApiError from "@/fetch/ApiError";
+import { redirect } from "react-router";
 
 export async function fetchContract({ params }: LoaderFunctionArgs) {
   //   const token = localStorage.getItem("accessToken") as string;
@@ -21,13 +22,20 @@ export async function fetchContract({ params }: LoaderFunctionArgs) {
 
     if (!response.ok) {
       const errorBody = await response.json();
-      throw new ApiError(
-        errorBody.message || "Failed to create milestone",
-        errorBody.code || "API_ERROR"
-      );
+
+      if (errorBody.code === "NO_CONTRACT_FOUND") {
+        return redirect("/dashboard/contracts");
+      } else {
+        throw new ApiError(
+          errorBody.message || "Failed to fetch contract",
+          errorBody.code || "API_ERROR"
+        );
+      }
     }
 
     const result = await response.json();
+
+    console.log("Fetched contract data:", result);
 
     return result;
   }

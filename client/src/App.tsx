@@ -1,10 +1,12 @@
-import { createBrowserRouter, RouterProvider } from "react-router";
+import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
 
 import LandingPage from "./containers/LandingPage";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Dashboard from "./pages/Dashboard";
+import ContractsList from "./containers/ContractsList";
+import Contract from "./containers/Contract";
 
 import { fetchContract } from "./dataLoaders/contractLoaders";
 
@@ -30,10 +32,34 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/dashboard/:contractId",
+    path: "/dashboard",
     element: <Dashboard />,
-    loader: fetchContract,
+    children: [
+      {
+        path: "contracts",
+        element: <ContractsList />,
+      },
+      {
+        path: ":contractId",
+        element: <Contract />,
+        loader: fetchContract,
+      },
+    ],
   },
+  // {
+  //   path: "/dashboard",
+  //   element: <Navigate to="/dashboard/contracts" replace />,
+  // },
+  // {
+  //   path: "/contracts",
+  //   element: <ContractsList />,
+  // },
+
+  // {
+  //   path: "/dashboard/:contractId",
+  //   element: <Dashboard />,
+  //   loader: fetchContract,
+  // },
 ]);
 
 function App() {

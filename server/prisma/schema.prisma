@@ -41,10 +41,10 @@ model contract {
   description String
   owner       user        @relation("UserContracts", fields: [ownerId], references: [id])
   ownerId     Int
-  buyerId     Int
-  sellerId    Int
-  buyer       user        @relation("BuyerContracts", fields: [buyerId], references: [id])
-  seller      user        @relation("SellerContracts", fields: [sellerId], references: [id])
+  buyerId     Int?
+  sellerId    Int?
+  buyer       user?       @relation("BuyerContracts", fields: [buyerId], references: [id])
+  seller      user?       @relation("SellerContracts", fields: [sellerId], references: [id])
   endDate     DateTime?
   amount      Float?
   status      String      @default("ACTIVE") // e.g., ACTIVE, COMPLETED

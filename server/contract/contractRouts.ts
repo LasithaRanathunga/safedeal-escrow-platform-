@@ -93,8 +93,8 @@ router.post(
           title: req.body.title,
           description: req.body.description,
           ownerId: req.user.id,
-          seller: req.body.role === "seller" ? req.user.id : null,
-          buyer: req.body.role === "buyer" ? req.user.id : null,
+          sellerId: req.body.role === "seller" ? req.user.id : null,
+          buyerId: req.body.role === "buyer" ? req.user.id : null,
           endDate: null,
           amount: null,
           status: "ACTIVE",
@@ -196,13 +196,13 @@ router.get(
         role: undefined as string | undefined,
       };
 
-      if (contract.buyer === parseInt(req.user.id, 10)) {
+      if (contract.buyerId === parseInt(req.user.id, 10)) {
         contractWithRole.role = "buyer";
-      } else if (contract.seller === parseInt(req.user.id, 10)) {
+      } else if (contract.sellerId === parseInt(req.user.id, 10)) {
         contractWithRole.role = "seller";
       }
 
-      console.log("Fetched contract:", contract.seller, "user", req.user.id);
+      console.log("Fetched contract:", contract.sellerId, "user", req.user.id);
 
       return res.status(200).json({ contract: contractWithRole });
     } catch (error) {
@@ -221,8 +221,8 @@ router.get(
       const contracts = await db.contract.findMany({
         where: {
           OR: [
-            { seller: parseInt(req.user.id, 10) },
-            { buyer: parseInt(req.user.id, 10) },
+            { sellerId: parseInt(req.user.id, 10) },
+            { buyerId: parseInt(req.user.id, 10) },
           ],
         },
         include: {
@@ -241,9 +241,9 @@ router.get(
           role: undefined as string | undefined,
         };
 
-        if (contract.buyer === parseInt(req.user.id, 10)) {
+        if (contract.buyerId === parseInt(req.user.id, 10)) {
           contractWithRole.role = "buyer";
-        } else if (contract.seller === parseInt(req.user.id, 10)) {
+        } else if (contract.sellerId === parseInt(req.user.id, 10)) {
           contractWithRole.role = "seller";
         }
         return contractWithRole;

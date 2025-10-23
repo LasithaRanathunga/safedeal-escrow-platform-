@@ -184,13 +184,11 @@ router.get(
       });
 
       if (!contract) {
-        return res
-          .status(404)
-          .json({
-            status: "error",
-            code: "NO_CONTRACT_FOUND",
-            message: "Contract not found",
-          });
+        return res.status(404).json({
+          status: "error",
+          code: "NO_CONTRACT_FOUND",
+          message: "Contract not found",
+        });
       }
 
       const contractWithRole = {
@@ -213,6 +211,49 @@ router.get(
     }
 
     // res.status(200).json({ message: "Fetch contract endpoint" });
+  }
+);
+
+router.get(
+  "/getAllContracts",
+  async (req: Request & { user?: any }, res: Response) => {
+    try {
+      const contracts = await db.contract.findMany({
+        where: {
+          OR: [
+            { seller: parseInt(req.user.id, 10) },
+            { buyer: parseInt(req.user.id, 10) },
+          ],
+        },
+        include: {
+          buyer: {
+            select: { name: true }, // Only fetch the needed fields
+          },
+          seller: {
+            select: { name: true },
+          },
+        },
+      });
+
+      const contractsWithRole = contracts.map((contract: contract) => {
+        const contractWithRole = {
+          ...contract,
+          role: undefined as string | undefined,
+        };
+
+        if (contract.buyer === parseInt(req.user.id, 10)) {
+          contractWithRole.role = "buyer";
+        } else if (contract.seller === parseInt(req.user.id, 10)) {
+          contractWithRole.role = "seller";
+        }
+        return contractWithRole;
+      });
+
+      return res.status(200).json({ contractsWithRole });
+    } catch (error) {
+      console.error("Error fetching contracts:", error);
+      res.status(500).json({ message: "Error fetching contracts", error });
+    }
   }
 );
 

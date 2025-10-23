@@ -8,7 +8,10 @@ import Dashboard from "./pages/Dashboard";
 import ContractsList from "./containers/ContractsList";
 import Contract from "./containers/Contract";
 
-import { fetchContract } from "./dataLoaders/contractLoaders";
+import {
+  fetchContract,
+  fetchContractsList,
+} from "./dataLoaders/contractLoaders";
 
 import "./App.css";
 
@@ -38,6 +41,7 @@ const router = createBrowserRouter([
       {
         path: "contracts",
         element: <ContractsList />,
+        loader: fetchContractsList,
       },
       {
         path: ":contractId",

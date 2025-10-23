@@ -10,9 +10,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-import CreateContractDialog from "./CreateContractDialog";
+import ContractsListItem from "./ContractsListItem";
 
-export default function ContractsList() {
+import CreateContractDialog from "./CreateContractDialog";
+import { useLoaderData } from "react-router";
+
+function NoContracts() {
   return (
     <Empty>
       <EmptyHeader>
@@ -37,5 +40,25 @@ export default function ContractsList() {
         size="sm"
       ></Button>
     </Empty>
+  );
+}
+
+// function Contracts({ contractsList }: { contractsList: any[] }) {}
+
+export default function ContractsList() {
+  const contractsList = useLoaderData() as any[];
+
+  console.log("Contracts List Loader Data:", contractsList);
+
+  return (
+    <>
+      {contractsList ? (
+        contractsList.map((contract) => (
+          <ContractsListItem key={contract.id} contract={contract} />
+        ))
+      ) : (
+        <NoContracts />
+      )}
+    </>
   );
 }

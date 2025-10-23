@@ -46,3 +46,38 @@ export async function fetchContract({ params }: LoaderFunctionArgs) {
   console.log("Contract data fetched:", contractData);
   return contractData;
 }
+
+export async function fetchContractsList() {
+  async function getContractsList(token: string) {
+    const response = await fetch(
+      `http://localhost:3000/contract/getAllContracts`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorBody = await response.json();
+      throw new ApiError(
+        errorBody.message || "Failed to fetch contracts list",
+        errorBody.code || "API_ERROR"
+      );
+    }
+
+    const result = await response.json();
+
+    console.log("Fetched contracts list:", result);
+    return result;
+  }
+
+  const contractsListData = await handleAcessToken(getContractsList);
+  console.log("Contracts list data fetched:", contractsListData);
+
+  if (contractsListData) {
+    return contractsListData.contractsWithRole;
+  }
+}

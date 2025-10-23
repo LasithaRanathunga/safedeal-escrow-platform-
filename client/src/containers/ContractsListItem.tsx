@@ -27,6 +27,13 @@ export default function ContractsListItem({ contract }: { contract: any }) {
     },
     { title: "Deadline", value: contract.endDate || "N/A" },
     { title: "Role", value: contract.role },
+    {
+      title: contract.role === "buyer" ? "Seller" : "Buyer",
+      value:
+        contract.role === "buyer"
+          ? contract.seller?.name || "N/A"
+          : contract.buyer?.name || "N/A",
+    },
   ];
 
   return (

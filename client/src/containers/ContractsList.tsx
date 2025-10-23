@@ -13,9 +13,9 @@ import {
 import ContractsListItem from "./ContractsListItem";
 
 import CreateContractDialog from "./CreateContractDialog";
-import { useLoaderData } from "react-router";
+import { useLoaderData, useRevalidator } from "react-router";
 
-function NoContracts() {
+function NoContracts({ revalidater }: { revalidater: () => void }) {
   return (
     <Empty>
       <EmptyHeader>
@@ -30,7 +30,7 @@ function NoContracts() {
       </EmptyHeader>
       <EmptyContent>
         <div className="flex gap-2">
-          <CreateContractDialog />
+          <CreateContractDialog fallback={revalidater} />
         </div>
       </EmptyContent>
       <Button
@@ -47,17 +47,22 @@ function NoContracts() {
 
 export default function ContractsList() {
   const contractsList = useLoaderData() as any[];
+  const revalidator = useRevalidator();
 
   console.log("Contracts List Loader Data:", contractsList);
 
+  function onCreateContract() {
+    revalidator.revalidate();
+  }
+
   return (
     <>
-      {contractsList ? (
+      {contractsList && contractsList.length > 0 ? (
         contractsList.map((contract) => (
           <ContractsListItem key={contract.id} contract={contract} />
         ))
       ) : (
-        <NoContracts />
+        <NoContracts revalidater={onCreateContract} />
       )}
     </>
   );

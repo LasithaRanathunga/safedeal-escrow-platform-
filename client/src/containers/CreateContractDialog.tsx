@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -15,7 +13,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -24,8 +21,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { DatePicker } from "./DatePicker";
-
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -33,6 +28,7 @@ import ApiError from "@/fetch/ApiError";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import { useRevalidator } from "react-router";
 
 const contractSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
@@ -44,9 +40,14 @@ const contractSchema = z.object({
 
 type ContractFormValues = z.infer<typeof contractSchema>;
 
-export default function CreateContractDialog() {
+export default function CreateContractDialog({
+  fallback,
+}: {
+  fallback?: () => void;
+}) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const revalidator = useRevalidator();
 
   const form = useForm<ContractFormValues>({
     resolver: zodResolver(contractSchema),
@@ -90,6 +91,12 @@ export default function CreateContractDialog() {
 
     setOpen(false);
     form.reset();
+
+    revalidator.revalidate();
+
+    if (fallback) {
+      fallback();
+    }
   }
 
   return (

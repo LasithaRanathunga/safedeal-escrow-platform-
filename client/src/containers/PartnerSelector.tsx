@@ -18,12 +18,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
-import { set } from "zod";
-
-type Framework = {
-  value: string;
-  label: string;
-};
 
 type User = {
   name: string;

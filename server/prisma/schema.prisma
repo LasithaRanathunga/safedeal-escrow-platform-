@@ -14,14 +14,16 @@ datasource db {
 }
 
 model user {
-  id        Int           @id @default(autoincrement())
-  email     String        @unique
-  password  String // hashed password
-  name      String
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  token     refreshToken?
-  contracts contract[]    @relation("UserContracts")
+  id              Int           @id @default(autoincrement())
+  email           String        @unique
+  password        String // hashed password
+  name            String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  token           refreshToken?
+  contracts       contract[]    @relation("UserContracts")
+  buyerContracts  contract[]    @relation("BuyerContracts")
+  sellerContracts contract[]    @relation("SellerContracts")
 }
 
 model refreshToken {
@@ -39,8 +41,10 @@ model contract {
   description String
   owner       user        @relation("UserContracts", fields: [ownerId], references: [id])
   ownerId     Int
-  seller      Int?
-  buyer       Int?
+  buyerId     Int?
+  sellerId    Int?
+  buyer       user?       @relation("BuyerContracts", fields: [buyerId], references: [id])
+  seller      user?       @relation("SellerContracts", fields: [sellerId], references: [id])
   endDate     DateTime?
   amount      Float?
   status      String      @default("ACTIVE") // e.g., ACTIVE, COMPLETED

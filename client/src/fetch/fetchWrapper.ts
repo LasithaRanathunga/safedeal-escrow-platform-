@@ -10,6 +10,7 @@ export async function handleAcessToken(
     console.log("Token:", token);
 
     const callbackRes = await callback(token);
+
     return callbackRes;
   } catch (error) {
     console.log("Error in fetchWrapper:", error);

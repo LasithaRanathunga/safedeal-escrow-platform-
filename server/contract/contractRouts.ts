@@ -93,8 +93,8 @@ router.post(
           title: req.body.title,
           description: req.body.description,
           ownerId: req.user.id,
-          seller: req.body.role === "seller" ? req.user.id : null,
-          buyer: req.body.role === "buyer" ? req.user.id : null,
+          sellerId: req.body.role === "seller" ? req.user.id : null,
+          buyerId: req.body.role === "buyer" ? req.user.id : null,
           endDate: null,
           amount: null,
           status: "ACTIVE",
@@ -184,7 +184,11 @@ router.get(
       });
 
       if (!contract) {
-        throw new Error(`Contract with ID ${contractId} not found`);
+        return res.status(404).json({
+          status: "error",
+          code: "NO_CONTRACT_FOUND",
+          message: "Contract not found",
+        });
       }
 
       const contractWithRole = {
@@ -192,13 +196,13 @@ router.get(
         role: undefined as string | undefined,
       };
 
-      if (contract.buyer === parseInt(req.user.id, 10)) {
+      if (contract.buyerId === parseInt(req.user.id, 10)) {
         contractWithRole.role = "buyer";
-      } else if (contract.seller === parseInt(req.user.id, 10)) {
+      } else if (contract.sellerId === parseInt(req.user.id, 10)) {
         contractWithRole.role = "seller";
       }
 
-      console.log("Fetched contract:", contract.seller, "user", req.user.id);
+      console.log("Fetched contract:", contract.sellerId, "user", req.user.id);
 
       return res.status(200).json({ contract: contractWithRole });
     } catch (error) {
@@ -207,6 +211,49 @@ router.get(
     }
 
     // res.status(200).json({ message: "Fetch contract endpoint" });
+  }
+);
+
+router.get(
+  "/getAllContracts",
+  async (req: Request & { user?: any }, res: Response) => {
+    try {
+      const contracts = await db.contract.findMany({
+        where: {
+          OR: [
+            { sellerId: parseInt(req.user.id, 10) },
+            { buyerId: parseInt(req.user.id, 10) },
+          ],
+        },
+        include: {
+          buyer: {
+            select: { name: true }, // Only fetch the needed fields
+          },
+          seller: {
+            select: { name: true },
+          },
+        },
+      });
+
+      const contractsWithRole = contracts.map((contract: contract) => {
+        const contractWithRole = {
+          ...contract,
+          role: undefined as string | undefined,
+        };
+
+        if (contract.buyerId === parseInt(req.user.id, 10)) {
+          contractWithRole.role = "buyer";
+        } else if (contract.sellerId === parseInt(req.user.id, 10)) {
+          contractWithRole.role = "seller";
+        }
+        return contractWithRole;
+      });
+
+      return res.status(200).json({ contractsWithRole });
+    } catch (error) {
+      console.error("Error fetching contracts:", error);
+      res.status(500).json({ message: "Error fetching contracts", error });
+    }
   }
 );
 

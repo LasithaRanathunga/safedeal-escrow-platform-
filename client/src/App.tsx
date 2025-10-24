@@ -5,8 +5,13 @@ import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Dashboard from "./pages/Dashboard";
+import ContractsList from "./containers/ContractsList";
+import Contract from "./containers/Contract";
 
-import { fetchContract } from "./dataLoaders/contractLoaders";
+import {
+  fetchContract,
+  fetchContractsList,
+} from "./dataLoaders/contractLoaders";
 
 import "./App.css";
 
@@ -31,17 +36,34 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Navigate to="/dashboard/contracts" replace />,
-  },
-
-  {
-    path: "/dashboard/contracts",
-  },
-  {
-    path: "/dashboard/:contractId",
     element: <Dashboard />,
-    loader: fetchContract,
+    children: [
+      {
+        path: "contracts",
+        element: <ContractsList />,
+        loader: fetchContractsList,
+      },
+      {
+        path: ":contractId",
+        element: <Contract />,
+        loader: fetchContract,
+      },
+    ],
   },
+  // {
+  //   path: "/dashboard",
+  //   element: <Navigate to="/dashboard/contracts" replace />,
+  // },
+  // {
+  //   path: "/contracts",
+  //   element: <ContractsList />,
+  // },
+
+  // {
+  //   path: "/dashboard/:contractId",
+  //   element: <Dashboard />,
+  //   loader: fetchContract,
+  // },
 ]);
 
 function App() {

@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/card";
 
 import { Pill, PillStatus } from "@/components/kibo-ui/pill";
+import { Link } from "react-router";
 
 function Badge({ title, value }: { title: string; value: string }) {
   return (
@@ -37,16 +38,20 @@ export default function ContractsListItem({ contract }: { contract: any }) {
   ];
 
   return (
-    <Card className="mb-4 hover:shadow-lg hover:cursor-pointer  transition-shadow">
-      <CardHeader>
-        <CardTitle>{contract.title}</CardTitle>
-        <CardDescription>{contract.description}</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {badgeList.map((badge, index) => {
-          return <Badge key={index} title={badge.title} value={badge.value} />;
-        })}
-      </CardContent>
-    </Card>
+    <Link to={`/dashboard/contracts/${contract.id}`}>
+      <Card className="mb-4 hover:shadow-lg hover:cursor-pointer  transition-shadow">
+        <CardHeader>
+          <CardTitle>{contract.title}</CardTitle>
+          <CardDescription>{contract.description}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {badgeList.map((badge, index) => {
+            return (
+              <Badge key={index} title={badge.title} value={badge.value} />
+            );
+          })}
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

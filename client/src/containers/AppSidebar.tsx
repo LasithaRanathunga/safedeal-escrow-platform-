@@ -22,7 +22,7 @@ import {
 const items = [
   {
     title: "My Contracts",
-    url: "#",
+    url: "/dashboard/contracts",
     icon: ReceiptText,
   },
 ];

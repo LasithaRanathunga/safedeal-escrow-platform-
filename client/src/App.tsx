@@ -44,7 +44,7 @@ const router = createBrowserRouter([
         loader: fetchContractsList,
       },
       {
-        path: ":contractId",
+        path: "contracts/:contractId",
         element: <Contract />,
         loader: fetchContract,
       },

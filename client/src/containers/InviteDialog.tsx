@@ -11,12 +11,39 @@ import {
 } from "@/components/ui/dialog";
 import PartnerSelector from "@/containers/PartnerSelector";
 import { useRef } from "react";
+import { handleAcessToken } from "@/fetch/fetchWrapper";
+import { useParams, useRevalidator } from "react-router";
 
 export default function InviteDialog() {
   const selectedUserRef = useRef(null);
+  const { contractId } = useParams();
+  const revalidator = useRevalidator();
 
-  const onSubmit = () => {
+  async function invitePartner(accesstoken: string) {
+    const response = await fetch(
+      "http://localhost:3000/contract/invitePartner",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accesstoken}`,
+        },
+        body: JSON.stringify({
+          contractId: contractId,
+          partnerEmail: selectedUserRef.current.email,
+        }),
+      }
+    );
+
+    return response;
+  }
+
+  const onSubmit = async () => {
+    console.log("Contract ID:", contractId);
     console.log("Inviting user:", selectedUserRef.current);
+    await handleAcessToken(invitePartner);
+
+    revalidator.revalidate();
   };
 
   return (

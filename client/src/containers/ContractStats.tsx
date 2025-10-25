@@ -13,11 +13,17 @@ type ConstractStatsProps = {
   buyer: number;
 };
 
-function hasPartner(contractStats: ConstractStatsProps) {
+function hasPartner(
+  contractStats: ConstractStatsProps & {
+    seller: { name: string };
+    buyer: { name: string };
+  }
+): ReactNode {
+  console.log("Contract Stats in hasPartner:", contractStats);
   if (contractStats.role === "buyer" && contractStats.seller) {
-    return "Seller name";
+    return contractStats.seller.name;
   } else if (contractStats.role === "seller" && contractStats.buyer) {
-    return "Buyer name";
+    return contractStats.buyer.name;
   } else {
     return <InviteDialog />;
   }
@@ -62,39 +68,6 @@ export default function ContractStats({
       description: contractStats.status,
     },
   ]);
-  // const ITEMS = [
-  //   {
-  //     id: 1,
-  //     title: "Contract",
-  //     description: contractStats.title,
-  //   },
-  //   {
-  //     id: 2,
-  //     title: contractStats.role === "seller" ? "Buyer" : "Seller",
-  //     description: "Jane S.",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Total Value",
-  //     description: `${
-  //       contractStats.amount
-  //         ? "$ " + contractStats.amount.toLocaleString()
-  //         : "N/A "
-  //     }`,
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Deadline",
-  //     description: contractStats.endDate
-  //       ? new Date(contractStats.endDate).toLocaleDateString()
-  //       : "N/A",
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Status",
-  //     description: contractStats.status,
-  //   },
-  // ];
 
   return (
     <div className="grid grid-cols-2  md:grid-cols-5">
@@ -113,9 +86,9 @@ export default function ContractStats({
               <h3 className="text-base font-medium text-zinc-800 dark:text-zinc-50">
                 {item.title}
               </h3>
-              <p className="text-base text-zinc-600 dark:text-zinc-400">
+              <div className="text-base text-zinc-600 dark:text-zinc-400">
                 {item.description}
-              </p>
+              </div>
             </div>
           </div>
         ))}

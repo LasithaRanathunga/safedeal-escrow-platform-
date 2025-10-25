@@ -39,6 +39,10 @@ const router = createBrowserRouter([
     element: <Dashboard />,
     children: [
       {
+        path: "",
+        element: <Navigate to="/dashboard/contracts" replace />,
+      },
+      {
         path: "contracts",
         element: <ContractsList />,
         loader: fetchContractsList,

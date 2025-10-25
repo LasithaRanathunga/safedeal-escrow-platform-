@@ -180,6 +180,12 @@ router.get(
         },
         include: {
           milestones: true,
+          buyer: {
+            select: { name: true }, // Only fetch the needed fields
+          },
+          seller: {
+            select: { name: true },
+          },
         },
       });
 
@@ -254,6 +260,39 @@ router.get(
       console.error("Error fetching contracts:", error);
       res.status(500).json({ message: "Error fetching contracts", error });
     }
+  }
+);
+
+router.post(
+  "/invitePartner",
+  async (req: Request & { user?: any }, res: Response) => {
+    const { contractId, partnerEmail } = req.body;
+
+    const partner = await db.user.findUnique({
+      where: { email: partnerEmail },
+    });
+
+    const contract = await db.contract.findUnique({
+      where: { id: parseInt(contractId, 10) },
+    });
+
+    if (!contract?.sellerId) {
+      await db.contract.update({
+        where: { id: parseInt(contractId, 10) },
+        data: { sellerId: partner?.id || null },
+      });
+    } else if (!contract.buyerId) {
+      await db.contract.update({
+        where: { id: parseInt(contractId, 10) },
+        data: { buyerId: partner?.id || null },
+      });
+    } else {
+      return res.status(400).json({
+        message: "Both buyer and seller are already assigned for this contract",
+      });
+    }
+
+    return res.status(200).json({ message: "Partner invited successfully" });
   }
 );
 

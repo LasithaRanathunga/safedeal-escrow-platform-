@@ -7,8 +7,6 @@ const router = Router();
 router.post(
   "/searchByUsername",
   async (req: Request & { user?: any }, res: Response) => {
-    console.log("Searching user with username:", req.body.name);
-
     try {
       const users = await db.user.findMany({
         where: {
@@ -18,7 +16,6 @@ router.post(
           },
         },
       });
-      // console.log("Found users:", users);
 
       // remove the requesting user from the results
       const filteredUsers = users.filter((user: User) => {
@@ -26,8 +23,6 @@ router.post(
           return user;
         }
       });
-
-      console.log("Filtered users:", filteredUsers);
 
       return res.status(200).json(filteredUsers);
     } catch (error) {

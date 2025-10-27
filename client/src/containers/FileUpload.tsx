@@ -20,6 +20,10 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { UploadCloud, File as FileIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useParams } from "react-router";
+import { handleAcessToken } from "@/fetch/fetchWrapper";
+import ApiError from "@/fetch/ApiError";
+import { ca } from "date-fns/locale";
 
 type FileStatus = "idle" | "dragging" | "uploading" | "error";
 
@@ -237,6 +241,24 @@ const UploadingAnimation = ({ progress }: { progress: number }) => (
   </div>
 );
 
+async function sendFileToServer(formData: FormData, token: string) {
+  try {
+    const res = await fetch(
+      `http://localhost:3000/file/upload?contractId=${contract}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      }
+    );
+    return res;
+  } catch (error: ApiError) {
+    throw new ApiError(error.messege, error.code || "UPLOAD_FAILED");
+  }
+}
+
 export default function FileUpload({
   onUploadSuccess = () => {},
   onUploadError = () => {},
@@ -247,13 +269,16 @@ export default function FileUpload({
   uploadDelay = 2000,
   validateFile = () => null,
   className,
-}: FileUploadProps) {
+  itemId,
+  type,
+}: FileUploadProps & { itemId: number; type: "preview" | "final" }) {
   const [file, setFile] = useState<File | null>(initialFile);
   const [status, setStatus] = useState<FileStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<FileError | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { contractId } = useParams();
 
   useEffect(() => {
     return () => {
@@ -308,40 +333,74 @@ export default function FileUpload({
     [onUploadError]
   );
 
-  const simulateUpload = useCallback(
-    (uploadingFile: File) => {
-      let currentProgress = 0;
-
-      if (uploadIntervalRef.current) {
-        clearInterval(uploadIntervalRef.current);
-      }
-
-      uploadIntervalRef.current = setInterval(() => {
-        currentProgress += UPLOAD_STEP_SIZE;
-        if (currentProgress >= 100) {
-          if (uploadIntervalRef.current) {
-            clearInterval(uploadIntervalRef.current);
+  const sendFileToServer = useCallback(
+    async function (formData: FormData, token: string) {
+      try {
+        const res = await fetch(
+          `http://localhost:3000/file/upload?contractId=${contractId}&itemId=${itemId}&type=${type}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+            body: formData,
           }
-          setProgress(0);
-          setStatus("idle");
-          setFile(null);
-          onUploadSuccess?.(uploadingFile);
-        } else {
-          setStatus((prevStatus) => {
-            if (prevStatus === "uploading") {
-              setProgress(currentProgress);
-              return "uploading";
-            }
-            if (uploadIntervalRef.current) {
-              clearInterval(uploadIntervalRef.current);
-            }
-            return prevStatus;
-          });
-        }
-      }, uploadDelay / (100 / UPLOAD_STEP_SIZE));
+        );
+        return res;
+      } catch (error: ApiError) {
+        throw new ApiError(error.messege, error.code || "UPLOAD_FAILED");
+      }
     },
-    [onUploadSuccess, uploadDelay]
+    [contractId, itemId, type]
   );
+
+  const simulateUpload = useCallback(async (uploadingFile: File) => {
+    // let currentProgress = 0;
+    // if (uploadIntervalRef.current) {
+    //   clearInterval(uploadIntervalRef.current);
+    // }
+    // uploadIntervalRef.current = setInterval(() => {
+    //   currentProgress += UPLOAD_STEP_SIZE;
+    //   if (currentProgress >= 100) {
+    //     if (uploadIntervalRef.current) {
+    //       clearInterval(uploadIntervalRef.current);
+    //     }
+    //     setProgress(0);
+    //     setStatus("idle");
+    //     setFile(null);
+    //     onUploadSuccess?.(uploadingFile);
+    //   } else {
+    //     setStatus((prevStatus) => {
+    //       if (prevStatus === "uploading") {
+    //         setProgress(currentProgress);
+    //         return "uploading";
+    //       }
+    //       if (uploadIntervalRef.current) {
+    //         clearInterval(uploadIntervalRef.current);
+    //       }
+    //       return prevStatus;
+    //     });
+    //   }
+    // }, uploadDelay / (100 / UPLOAD_STEP_SIZE));
+
+    setProgress(0);
+
+    if (uploadingFile) {
+      setStatus("uploading");
+
+      const formData = new FormData();
+      formData.append("file", uploadingFile);
+      const responce = await handleAcessToken(
+        sendFileToServer.bind(null, formData)
+      );
+
+      const res = await responce.json();
+
+      console.log("Upload responce:", res);
+
+      setProgress(100);
+    }
+  }, []);
 
   const handleFileSelect = useCallback(
     (selectedFile: File | null) => {

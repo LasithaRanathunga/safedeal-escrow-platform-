@@ -156,9 +156,17 @@ export default function ContractTimeline({
                 <b>Time Remaining</b>: {item.daysRemaining}
               </p>
             </div>
-            <FileUploadDialog label="Upload Preview" />
+            <FileUploadDialog
+              label="Upload Preview"
+              itemId={item.id}
+              type="preview"
+            />
             <br />
-            <FileUploadDialog label="Upload Final" />
+            <FileUploadDialog
+              label="Upload Final"
+              itemId={item.id}
+              type="final"
+            />
 
             <CommentSection />
             <CreateMilestoneDialog updateItems={updateItems} order={item.id} />

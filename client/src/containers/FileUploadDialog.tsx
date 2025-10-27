@@ -10,7 +10,15 @@ import {
 import { Button } from "@/components/ui/button";
 import FileUpload from "./FileUpload";
 
-export default function FileUploadDialog({ label }: { label: string }) {
+export default function FileUploadDialog({
+  label,
+  itemId,
+  type,
+}: {
+  label: string;
+  itemId: number;
+  type: "preview" | "final";
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild className="my-1">
@@ -22,7 +30,7 @@ export default function FileUploadDialog({ label }: { label: string }) {
         <DialogHeader>
           <DialogTitle>{label}</DialogTitle>
         </DialogHeader>
-        <FileUpload />
+        <FileUpload itemId={itemId} type={type} />
       </DialogContent>
     </Dialog>
   );

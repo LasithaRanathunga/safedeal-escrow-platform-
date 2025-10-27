@@ -62,6 +62,10 @@ model milestone {
   order       Int
   contractId  Int
   contract    contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  reviewPath  String?
+  finalPath   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@unique([contractId, order])
 }

@@ -1,10 +1,16 @@
-import express from "express";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import cookieParser from "cookie-parser";
 import authRouter from "./auth/authRouts";
 import { authenticateToken } from "./auth/authUtils";
 import contractRouts from "./contract/contractRouts";
 import userRouts from "./user/userRouts";
 import cors from "cors";
+import fileUploadRouts from "./fileUpload/upload";
+import multer from "multer";
 
 const app = express();
 
@@ -42,11 +48,27 @@ app.use("/contract", contractRouts);
 
 app.use("/user", userRouts);
 
+app.use("/file", fileUploadRouts);
+
 // Sample route
 app.post("/", (req, res) => {
   console.log("Received a GET request");
   console.log(req.body);
   res.json({ message: "Hello from backend!" });
+});
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  if (err instanceof multer.MulterError) {
+    // Multer-specific errors (e.g. file too large)
+    return res.status(400).json({ error: err.message });
+  }
+
+  if (err) {
+    // Custom errors from cb(new Error(...))
+    return res.status(400).json({ error: err.message });
+  }
+
+  next();
 });
 
 app.listen(3000, () => {

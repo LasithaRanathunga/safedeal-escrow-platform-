@@ -16,6 +16,8 @@ router.post("/upload", upload.single("file"), async (req, res) => {
 
     // Save metadata in DB
 
+    console.log("FIle type:", type);
+
     if (type === "preview") {
       const savedFile = await db.milestone.update({
         where: {
@@ -25,7 +27,8 @@ router.post("/upload", upload.single("file"), async (req, res) => {
           },
         },
         data: {
-          reviewPath: filePath,
+          previewPath: filePath,
+          previewDate: new Date(),
         },
       });
     } else if (type === "final") {
@@ -38,6 +41,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
         },
         data: {
           finalPath: filePath,
+          finalDate: new Date(),
         },
       });
     }

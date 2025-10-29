@@ -9,18 +9,23 @@ import {
 
 import { Button } from "@/components/ui/button";
 import FileUpload from "./FileUpload";
+import { useState } from "react";
 
 export default function FileUploadDialog({
   label,
   itemId,
   type,
+  refreshOnUpload,
 }: {
   label: string;
   itemId: number;
   type: "preview" | "final";
+  refreshOnUpload: () => Promise<void>;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild className="my-1">
         <Button size={"sm"} variant="outline">
           {label}
@@ -30,7 +35,14 @@ export default function FileUploadDialog({
         <DialogHeader>
           <DialogTitle>{label}</DialogTitle>
         </DialogHeader>
-        <FileUpload itemId={itemId} type={type} />
+        <FileUpload
+          itemId={itemId}
+          type={type}
+          onUploadSuccess={() => {
+            setOpen(false);
+            refreshOnUpload();
+          }}
+        />
       </DialogContent>
     </Dialog>
   );

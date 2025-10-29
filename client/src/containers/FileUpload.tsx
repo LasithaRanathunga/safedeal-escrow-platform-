@@ -33,7 +33,7 @@ interface FileError {
 }
 
 interface FileUploadProps {
-  onUploadSuccess?: (file: File) => void;
+  onUploadSuccess?: () => void;
   onUploadError?: (error: FileError) => void;
   acceptedFileTypes?: string[];
   maxFileSize?: number;
@@ -354,53 +354,26 @@ export default function FileUpload({
     [contractId, itemId, type]
   );
 
-  const simulateUpload = useCallback(async (uploadingFile: File) => {
-    // let currentProgress = 0;
-    // if (uploadIntervalRef.current) {
-    //   clearInterval(uploadIntervalRef.current);
-    // }
-    // uploadIntervalRef.current = setInterval(() => {
-    //   currentProgress += UPLOAD_STEP_SIZE;
-    //   if (currentProgress >= 100) {
-    //     if (uploadIntervalRef.current) {
-    //       clearInterval(uploadIntervalRef.current);
-    //     }
-    //     setProgress(0);
-    //     setStatus("idle");
-    //     setFile(null);
-    //     onUploadSuccess?.(uploadingFile);
-    //   } else {
-    //     setStatus((prevStatus) => {
-    //       if (prevStatus === "uploading") {
-    //         setProgress(currentProgress);
-    //         return "uploading";
-    //       }
-    //       if (uploadIntervalRef.current) {
-    //         clearInterval(uploadIntervalRef.current);
-    //       }
-    //       return prevStatus;
-    //     });
-    //   }
-    // }, uploadDelay / (100 / UPLOAD_STEP_SIZE));
+  const simulateUpload = useCallback(
+    async (uploadingFile: File) => {
+      setProgress(0);
 
-    setProgress(0);
+      if (uploadingFile) {
+        setStatus("uploading");
 
-    if (uploadingFile) {
-      setStatus("uploading");
+        const formData = new FormData();
+        formData.append("file", uploadingFile);
+        const responce = await handleAcessToken(
+          sendFileToServer.bind(null, formData)
+        );
 
-      const formData = new FormData();
-      formData.append("file", uploadingFile);
-      const responce = await handleAcessToken(
-        sendFileToServer.bind(null, formData)
-      );
+        setProgress(100);
 
-      const res = await responce.json();
-
-      console.log("Upload responce:", res);
-
-      setProgress(100);
-    }
-  }, []);
+        onUploadSuccess();
+      }
+    },
+    [onUploadSuccess, sendFileToServer]
+  );
 
   const handleFileSelect = useCallback(
     (selectedFile: File | null) => {

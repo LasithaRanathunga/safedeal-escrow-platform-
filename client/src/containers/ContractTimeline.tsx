@@ -15,8 +15,8 @@ import {
 
 import FileUploadDialog from "./FileUploadDialog";
 import CommentSection from "./CommentSection";
-import CreateMilestoneDialog from "./createMilestoneDialog";
-import { set } from "zod";
+import CreateMilestoneDialog from "./CreateMilestoneDialog";
+import { useRevalidator } from "react-router";
 
 function sortByOrder(arr: any[]) {
   return [...arr].sort((a, b) => a.order - b.order);
@@ -39,6 +39,25 @@ function getDaysRemaining(deadlineDate: string): string {
   return `${daysRemaining} day${daysRemaining !== 1 ? "s" : ""} remaining`;
 }
 
+function getTimeAgo(dateString: string): string {
+  const now = new Date();
+  const past = new Date(dateString);
+  const diffMs = now.getTime() - past.getTime();
+
+  if (diffMs < 0) return "In the future"; // safety check
+
+  const minutes = Math.floor(diffMs / (1000 * 60));
+  const hours = Math.floor(diffMs / (1000 * 60 * 60));
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  const weeks = Math.floor(days / 7);
+
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
+  if (hours < 24) return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
+  if (days < 7) return `${days} day${days !== 1 ? "s" : ""} ago`;
+  return `${weeks} week${weeks !== 1 ? "s" : ""} ago`;
+}
+
 function getItems(items: any[]) {
   return sortByOrder(items).map((item, index) => {
     console.log("Processing milestone item:", item);
@@ -57,6 +76,8 @@ function getItems(items: any[]) {
       title: item.title,
       description: item.description,
       daysRemaining: getDaysRemaining(item.deadline),
+      previewDate: item.previewDate,
+      finalDate: item.finalDate,
     };
   });
 }
@@ -83,6 +104,8 @@ export default function ContractTimeline({
     return getItems(milestones);
   });
 
+  const revalidator = useRevalidator();
+
   const updateItems = function (newItem: any, index: number) {
     const itemWithDaysRemaining = {
       ...newItem,
@@ -92,37 +115,6 @@ export default function ContractTimeline({
       insertToItems(prevItems, itemWithDaysRemaining, index)
     );
   };
-
-  // const items = [
-  //   {
-  //     id: 1,
-  //     date: "Mar 15, 2024",
-  //     title: "Project Kickoff",
-  //     description:
-  //       "Initial team meeting and project scope definition. Established key milestones and resource allocation.",
-  //   },
-  //   {
-  //     id: 2,
-  //     date: "Mar 22, 2024",
-  //     title: "Design Phase",
-  //     description:
-  //       "Completed wireframes and user interface mockups. Stakeholder review and feedback incorporated.",
-  //   },
-  //   {
-  //     id: 3,
-  //     date: "Apr 5, 2024",
-  //     title: "Development Sprint",
-  //     description:
-  //       "Backend API implementation and frontend component development in progress.",
-  //   },
-  //   {
-  //     id: 4,
-  //     date: "Apr 19, 2024",
-  //     title: "Testing & Deployment",
-  //     description:
-  //       "Quality assurance testing, performance optimization, and production deployment preparation.",
-  //   },
-  // ];
 
   console.log("Milestones in ContractTimeline:", milestones);
 
@@ -156,17 +148,35 @@ export default function ContractTimeline({
                 <b>Time Remaining</b>: {item.daysRemaining}
               </p>
             </div>
-            <FileUploadDialog
-              label="Upload Preview"
-              itemId={item.id}
-              type="preview"
-            />
-            <br />
-            <FileUploadDialog
-              label="Upload Final"
-              itemId={item.id}
-              type="final"
-            />
+            <div className="space-y-0">
+              <div className="flex items-center">
+                <FileUploadDialog
+                  label="Upload Preview"
+                  itemId={item.id}
+                  type="preview"
+                  refreshOnUpload={() => revalidator.revalidate()}
+                />
+                <p className="ml-2 font-semibold">
+                  {item.previewDate
+                    ? getTimeAgo(item.previewDate)
+                    : "Not Submitted Yet"}
+                </p>
+              </div>
+              <br />
+              <div className="flex items-center">
+                <FileUploadDialog
+                  label="Upload Final"
+                  itemId={item.id}
+                  type="final"
+                  refreshOnUpload={() => revalidator.revalidate()}
+                />
+                <p className="ml-2 font-semibold">
+                  {item.finalDate
+                    ? getTimeAgo(item.finalDate)
+                    : "Not Submitted Yet"}
+                </p>
+              </div>
+            </div>
 
             <CommentSection />
             <CreateMilestoneDialog updateItems={updateItems} order={item.id} />

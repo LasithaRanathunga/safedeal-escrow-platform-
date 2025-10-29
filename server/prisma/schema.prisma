@@ -54,18 +54,20 @@ model contract {
 }
 
 model milestone {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   title       String
   description String
   amount      Float
   deadline    DateTime
   order       Int
   contractId  Int
-  contract    contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
-  reviewPath  String?
+  contract    contract  @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  previewPath String?
+  previewDate DateTime?
   finalPath   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  finalDate   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@unique([contractId, order])
 }

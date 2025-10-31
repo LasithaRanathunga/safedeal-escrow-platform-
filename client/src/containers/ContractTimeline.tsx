@@ -17,6 +17,7 @@ import FileUploadDialog from "./FileUploadDialog";
 import CommentSection from "./CommentSection";
 import CreateMilestoneDialog from "./CreateMilestoneDialog";
 import { useRevalidator } from "react-router";
+import FileDownloadButton from "./FileDownloadButton";
 
 function sortByOrder(arr: any[]) {
   return [...arr].sort((a, b) => a.order - b.order);
@@ -59,7 +60,7 @@ function getTimeAgo(dateString: string): string {
 }
 
 function getItems(items: any[]) {
-  return sortByOrder(items).map((item, index) => {
+  return sortByOrder(items).map((item) => {
     console.log("Processing milestone item:", item);
     return {
       id: item.order,
@@ -97,8 +98,10 @@ function insertToItems(items: any[], newItem: any, index: number) {
 
 export default function ContractTimeline({
   milestones,
+  role,
 }: {
   milestones: any[];
+  role: string;
 }) {
   const [items, setItems] = useState(() => {
     return getItems(milestones);
@@ -156,9 +159,10 @@ export default function ContractTimeline({
                   type="preview"
                   refreshOnUpload={() => revalidator.revalidate()}
                 />
+                <FileDownloadButton itemId={item.id} type="preview" />
                 <p className="ml-2 font-semibold">
                   {item.previewDate
-                    ? getTimeAgo(item.previewDate)
+                    ? `Submitted ${getTimeAgo(item.previewDate)}`
                     : "Not Submitted Yet"}
                 </p>
               </div>
@@ -172,7 +176,7 @@ export default function ContractTimeline({
                 />
                 <p className="ml-2 font-semibold">
                   {item.finalDate
-                    ? getTimeAgo(item.finalDate)
+                    ? `Submitted ${getTimeAgo(item.finalDate)}`
                     : "Not Submitted Yet"}
                 </p>
               </div>

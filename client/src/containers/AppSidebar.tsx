@@ -3,6 +3,10 @@ import Logo from "@/components/Logo";
 import UserAccount from "@/components/UserAccount";
 import { Separator } from "@/components/ui/separator";
 import CreateContractDialog from "./CreateContractDialog";
+import { useNavigate } from "react-router";
+import { useCallback } from "react";
+import { handleAcessToken } from "@/fetch/fetchWrapper";
+import ApiError from "@/fetch/ApiError";
 
 import {
   SidebarProvider,
@@ -60,7 +64,7 @@ export default function AppSidebar() {
         <SidebarFooter>
           <Separator />
           <SidebarGroup>
-            <UserAccount username="Kevin K." email="lasitha@gmail.com" />
+            <UserAccount />
           </SidebarGroup>
         </SidebarFooter>
       </Sidebar>

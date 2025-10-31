@@ -32,4 +32,26 @@ router.post(
   }
 );
 
+router.get(
+  "/getCurrentUser",
+  async (req: Request & { user?: any }, res: Response) => {
+    try {
+      const user = await db.user.findUnique({
+        where: {
+          email: req.user.email,
+        },
+      });
+
+      return res.status(200).json({ name: user?.name, email: user?.email });
+    } catch (error) {
+      console.error("Error fetching current user:", error);
+      return res.status(500).json({
+        message: "Error fetching current user",
+        code: "NO_USER_FOUND",
+        error,
+      });
+    }
+  }
+);
+
 export default router;

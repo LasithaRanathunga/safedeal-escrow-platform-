@@ -9,7 +9,7 @@ import { authenticateToken } from "./auth/authUtils";
 import contractRouts from "./contract/contractRouts";
 import userRouts from "./user/userRouts";
 import cors from "cors";
-import fileUploadRouts from "./fileUpload/upload";
+import fileUploadRouts from "./handleFiles/fileHandler";
 import multer from "multer";
 
 const app = express();

@@ -4,6 +4,7 @@ import { body } from "express-validator";
 import type { ValidationChain } from "express-validator";
 import bcrypt from "bcrypt";
 import "dotenv/config";
+import { authenticateToken } from "./authUtils";
 
 import {
   getAccessToken,
@@ -107,10 +108,8 @@ router.post("/login", async (req: Request, res: Response) => {
     }
   }
 
-  // if (!user || user.password !== password) {
-  //   console.log("Invalid email or password");
-  //   return res.status(400).json({ message: "Invalid email or password" });
-  // }
+  // delete refresh token if exist
+  await db.refreshToken.deleteMany({ where: { userId: user.id } });
 
   //create tokens
   const refreshToken = await createRefreshToken(user, "7d");
@@ -121,30 +120,35 @@ router.post("/login", async (req: Request, res: Response) => {
 });
 
 // ######### LogOut Route #########
-router.post("/logout", async (req: Request, res: Response) => {
-  const email = req.body.email;
-
-  const user = await db.user.findUnique({
-    where: { email: email },
-  });
-
-  if (!user) {
-    return res.status(400).json({ message: "Invalid email" });
-  }
-
-  const userId = user.id;
-
-  // delete refresh tokens associated with the user
-  try {
-    await db.refreshToken.delete({
-      where: { userId: userId },
+router.post(
+  "/logout",
+  authenticateToken,
+  async (req: Request & { user?: any }, res: Response) => {
+    const email = req.user.email;
+    console.log("Logout called");
+    console.log("from logout", email);
+    const user = await db.user.findUnique({
+      where: { email: email },
     });
-  } catch (error) {
-    return res.status(500).json({ message: "Error in logging out", error });
-  }
 
-  res.status(200).json({ message: "Logged out successfully" });
-});
+    if (!user) {
+      return res.status(400).json({ message: "Invalid email" });
+    }
+
+    const userId = user.id;
+
+    // delete refresh tokens associated with the user
+    try {
+      await db.refreshToken.delete({
+        where: { userId: userId },
+      });
+    } catch (error) {
+      return res.status(500).json({ message: "Error in logging out", error });
+    }
+
+    res.status(200).json({ message: "Logged out successfully" });
+  }
+);
 
 // ######### Re-New Access Token #########
 router.post("/renew-token", async (req: Request, res: Response) => {

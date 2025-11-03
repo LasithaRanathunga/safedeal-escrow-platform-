@@ -54,20 +54,6 @@ const router = createBrowserRouter([
       },
     ],
   },
-  // {
-  //   path: "/dashboard",
-  //   element: <Navigate to="/dashboard/contracts" replace />,
-  // },
-  // {
-  //   path: "/contracts",
-  //   element: <ContractsList />,
-  // },
-
-  // {
-  //   path: "/dashboard/:contractId",
-  //   element: <Dashboard />,
-  //   loader: fetchContract,
-  // },
 ]);
 
 function App() {

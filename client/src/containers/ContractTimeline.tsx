@@ -153,13 +153,17 @@ export default function ContractTimeline({
             </div>
             <div className="space-y-0">
               <div className="flex items-center">
-                <FileUploadDialog
-                  label="Upload Preview"
-                  itemId={item.id}
-                  type="preview"
-                  refreshOnUpload={() => revalidator.revalidate()}
-                />
-                <FileDownloadButton itemId={item.id} type="preview" />
+                {role === "seller" ? (
+                  <FileUploadDialog
+                    label="Upload Preview"
+                    itemId={item.id}
+                    type="preview"
+                    refreshOnUpload={() => revalidator.revalidate()}
+                  />
+                ) : (
+                  <FileDownloadButton itemId={item.id} type="preview" />
+                )}
+
                 <p className="ml-2 font-semibold">
                   {item.previewDate
                     ? `Submitted ${getTimeAgo(item.previewDate)}`
@@ -168,12 +172,17 @@ export default function ContractTimeline({
               </div>
               <br />
               <div className="flex items-center">
-                <FileUploadDialog
-                  label="Upload Final"
-                  itemId={item.id}
-                  type="final"
-                  refreshOnUpload={() => revalidator.revalidate()}
-                />
+                {role === "seller" ? (
+                  <FileUploadDialog
+                    label="Upload Final"
+                    itemId={item.id}
+                    type="final"
+                    refreshOnUpload={() => revalidator.revalidate()}
+                  />
+                ) : (
+                  <FileDownloadButton itemId={item.id} type="final" />
+                )}
+
                 <p className="ml-2 font-semibold">
                   {item.finalDate
                     ? `Submitted ${getTimeAgo(item.finalDate)}`

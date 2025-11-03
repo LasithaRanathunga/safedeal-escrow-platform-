@@ -49,5 +49,13 @@ export default function FileDownloadButton({
     window.URL.revokeObjectURL(url);
   };
 
-  return <Button onClick={onDownloadClick} className="hover:cursor-pointer" />;
+  return (
+    <Button
+      variant={"outline"}
+      onClick={onDownloadClick}
+      className="hover:cursor-pointer"
+    >
+      Download {type === "preview" ? "Preview" : "Final"}
+    </Button>
+  );
 }

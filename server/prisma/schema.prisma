@@ -68,6 +68,7 @@ model milestone {
   finalDate   DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  isPayed     Boolean   @default(false)
 
   @@unique([contractId, order])
 }

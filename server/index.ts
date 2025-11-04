@@ -11,6 +11,7 @@ import userRouts from "./user/userRouts";
 import cors from "cors";
 import fileUploadRouts from "./handleFiles/fileHandler";
 import multer from "multer";
+import payment from "./payment/payment";
 
 const app = express();
 
@@ -49,6 +50,8 @@ app.use("/contract", contractRouts);
 app.use("/user", userRouts);
 
 app.use("/file", fileUploadRouts);
+
+app.use("/payment", payment);
 
 // Sample route
 app.post("/", (req, res) => {

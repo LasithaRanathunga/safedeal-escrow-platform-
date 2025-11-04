@@ -7,6 +7,7 @@ import LogIn from "./pages/LogIn";
 import Dashboard from "./pages/Dashboard";
 import ContractsList from "./containers/ContractsList";
 import Contract from "./containers/Contract";
+import PaymentComplete from "./pages/PaymentComplete";
 
 import {
   fetchContract,
@@ -54,6 +55,7 @@ const router = createBrowserRouter([
       },
     ],
   },
+  { path: "/payment-complete", element: <PaymentComplete /> },
 ]);
 
 function App() {

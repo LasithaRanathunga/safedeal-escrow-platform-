@@ -18,6 +18,7 @@ import CommentSection from "./CommentSection";
 import CreateMilestoneDialog from "./CreateMilestoneDialog";
 import { useRevalidator } from "react-router";
 import FileDownloadButton from "./FileDownloadButton";
+import PaymentDialog from "./PaymentDialog";
 
 function sortByOrder(arr: any[]) {
   return [...arr].sort((a, b) => a.order - b.order);
@@ -79,6 +80,8 @@ function getItems(items: any[]) {
       daysRemaining: getDaysRemaining(item.deadline),
       previewDate: item.previewDate,
       finalDate: item.finalDate,
+      isPayed: item.isPayed,
+      amount: item.amount,
     };
   });
 }
@@ -150,6 +153,9 @@ export default function ContractTimeline({
               <p>
                 <b>Time Remaining</b>: {item.daysRemaining}
               </p>
+              <p>
+                <b>Amount</b>: {` $${item.amount}`}
+              </p>
             </div>
             <div className="space-y-0">
               <div className="flex items-center">
@@ -179,8 +185,10 @@ export default function ContractTimeline({
                     type="final"
                     refreshOnUpload={() => revalidator.revalidate()}
                   />
-                ) : (
+                ) : item.isPayed === "true" ? (
                   <FileDownloadButton itemId={item.id} type="final" />
+                ) : (
+                  <PaymentDialog item={item} label="Unlock" />
                 )}
 
                 <p className="ml-2 font-semibold">
@@ -191,7 +199,7 @@ export default function ContractTimeline({
               </div>
             </div>
 
-            <CommentSection />
+            {/* <CommentSection /> */}
             <CreateMilestoneDialog updateItems={updateItems} order={item.id} />
           </TimelineContent>
         </TimelineItem>

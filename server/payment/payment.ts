@@ -8,9 +8,15 @@ const router = express.Router();
 router.post("/create-payment", async (req: Request, res: Response) => {
   try {
     const milestoneId = req.body.milestoneId;
+    const contractId = req.body.contractId;
 
     const milestoneInfo = await db.milestone.findUnique({
-      where: { id: parseInt(milestoneId, 10) },
+      where: {
+        contractId_order: {
+          contractId: parseInt(contractId as string, 10),
+          order: parseInt(milestoneId as string, 10),
+        },
+      },
     });
 
     if (!milestoneInfo) {
@@ -34,6 +40,34 @@ router.post("/create-payment", async (req: Request, res: Response) => {
     res
       .status(500)
       .json({ error: error, code: "PAYMENT_ERROR", message: "payment failed" });
+  }
+});
+
+router.post("/complete-payment", async (req: Request, res: Response) => {
+  const milestoneId = req.body.milestoneId;
+  const contractId = req.body.contractId;
+
+  try {
+    const milestoneInfo = await db.milestone.update({
+      where: {
+        contractId_order: {
+          contractId: parseInt(contractId as string, 10),
+          order: parseInt(milestoneId as string, 10),
+        },
+      },
+      data: {
+        isPayed: true,
+      },
+    });
+
+    console.log("updated milestone", milestoneInfo);
+
+    res.status(200).json({ message: "milestone updated" });
+  } catch (error) {
+    res.status(400).json({
+      message: "failed to update the milestone",
+      code: "MILESTONE_UPDATE_FAILED",
+    });
   }
 });
 

@@ -60,9 +60,6 @@ async function updateContractInfo(contractId: string, db: TxClient) {
   // Latest deadline
   const latestDeadline = milestones.length > 0 ? milestones[0].deadline : null;
 
-  console.log("Total Amount:", totalAmount);
-  console.log("Latest Deadline:", latestDeadline);
-
   // Update contract
   try {
     await db.contract.update({

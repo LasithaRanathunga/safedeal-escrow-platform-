@@ -51,7 +51,7 @@ export default function FileDownloadButton({
 
   return (
     <Button
-      variant={"outline"}
+      variant={"default"}
       onClick={onDownloadClick}
       className="hover:cursor-pointer"
     >

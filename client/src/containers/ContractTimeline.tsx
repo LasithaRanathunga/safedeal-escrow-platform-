@@ -82,6 +82,8 @@ function getItems(items: any[]) {
       finalDate: item.finalDate,
       isPayed: item.isPayed,
       amount: item.amount,
+      finalPath: item.finalPath,
+      previewPath: item.previewPath,
     };
   });
 }
@@ -185,7 +187,7 @@ export default function ContractTimeline({
                     type="final"
                     refreshOnUpload={() => revalidator.revalidate()}
                   />
-                ) : item.isPayed === "true" ? (
+                ) : item.isPayed === true ? (
                   <FileDownloadButton itemId={item.id} type="final" />
                 ) : (
                   <PaymentDialog item={item} label="Unlock" />

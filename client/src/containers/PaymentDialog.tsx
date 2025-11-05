@@ -22,7 +22,7 @@ export default function PaymentDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild className="my-1">
-        <Button size={"sm"} variant="outline">
+        <Button size={"sm"} variant="default" disabled={!item.finalPath}>
           {`Pay`}
         </Button>
       </DialogTrigger>

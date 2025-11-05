@@ -14,6 +14,8 @@ import {
   fetchContractsList,
 } from "./dataLoaders/contractLoaders";
 
+import { finishPayment } from "./dataLoaders/paymentLoaders";
+
 import "./App.css";
 
 const router = createBrowserRouter([
@@ -55,7 +57,11 @@ const router = createBrowserRouter([
       },
     ],
   },
-  { path: "/payment-complete", element: <PaymentComplete /> },
+  {
+    path: "/payment-complete",
+    element: <PaymentComplete />,
+    loader: finishPayment,
+  },
 ]);
 
 function App() {

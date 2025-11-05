@@ -7,7 +7,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-export default function Checkout({ item }: { item: any }) {
+export default function Checkout({
+  item,
+  contractId,
+}: {
+  item: any;
+  contractId: string;
+}) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -27,7 +33,7 @@ export default function Checkout({ item }: { item: any }) {
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: "http://localhost:5173/payment-complete",
+        return_url: `http://localhost:5173/payment-complete?milestoneId=${item.id}&contractId=${contractId}`,
       },
     });
 

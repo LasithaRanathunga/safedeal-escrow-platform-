@@ -194,8 +194,26 @@ router.get(
         });
       }
 
+      let activeMilestone = 0;
+
+      if (contract.milestones.length > 0) {
+        for (const item of contract.milestones) {
+          if (item.isPayed && item.order > activeMilestone) {
+            activeMilestone = item.order;
+          }
+        }
+      }
+
+      const owner = await db.user.findUnique({
+        where: { id: contract.ownerId },
+      });
+
+      const isOwner = owner?.email === req.user.email;
+
       const contractWithRole = {
         ...contract,
+        isOwner: isOwner,
+        activeMilestone: activeMilestone,
         role: undefined as string | undefined,
       };
 

@@ -12,7 +12,12 @@ export default function Contract() {
     <>
       <ContractStats contractStats={contractStats} />
       <Separator className="my-4" />
-      <ContractTimeline milestones={milestones} role={contractStats.role} />
+      <ContractTimeline
+        milestones={milestones}
+        role={contractStats.role}
+        isOwner={contractStats.isOwner}
+        activeMilestone={contractStats.activeMilestone}
+      />
     </>
   );
 }

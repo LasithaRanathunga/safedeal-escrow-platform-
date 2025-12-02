@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PartnerSelector from "@/containers/PartnerSelector";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
 import { useParams, useRevalidator } from "react-router";
 
@@ -18,6 +18,7 @@ export default function InviteDialog() {
   const selectedUserRef = useRef(null);
   const { contractId } = useParams();
   const revalidator = useRevalidator();
+  const [open, setOpen] = useState(false);
 
   async function invitePartner(accesstoken: string) {
     const response = await fetch(
@@ -44,10 +45,12 @@ export default function InviteDialog() {
     await handleAcessToken(invitePartner);
 
     revalidator.revalidate();
+
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <form>
         <DialogTrigger asChild>
           <Button variant="outline" size={"sm"}>

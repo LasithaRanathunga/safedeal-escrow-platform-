@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
+import { useNavigate } from "react-router";
 import signinImage from "../assets/signin.png";
 
 type SignupResponse = {
@@ -38,6 +38,8 @@ const formSchema = z
   });
 
 export default function SignUp() {
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       email: "",
@@ -75,6 +77,8 @@ export default function SignUp() {
 
     localStorage.setItem("accessToken", resData.accessToken);
     localStorage.setItem("refreshToken", resData.refreshToken);
+
+    navigate("/dashboard");
   };
 
   return (

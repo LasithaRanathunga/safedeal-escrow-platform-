@@ -56,7 +56,7 @@ export default function LogIn() {
       localStorage.setItem("accessToken", resData.accessToken);
       localStorage.setItem("refreshToken", resData.refreshToken);
 
-      navigate("/dashbord");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Error during login:", error);
     }

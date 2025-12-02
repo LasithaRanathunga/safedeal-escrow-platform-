@@ -104,9 +104,13 @@ function insertToItems(items: any[], newItem: any, index: number) {
 export default function ContractTimeline({
   milestones,
   role,
+  isOwner,
+  activeMilestone,
 }: {
   milestones: any[];
   role: string;
+  isOwner: boolean;
+  activeMilestone: number;
 }) {
   const [items, setItems] = useState(() => {
     return getItems(milestones);
@@ -127,8 +131,8 @@ export default function ContractTimeline({
   console.log("Milestones in ContractTimeline:", milestones);
 
   return (
-    <Timeline defaultValue={2}>
-      <CreateMilestoneDialog updateItems={updateItems} order={0} />
+    <Timeline defaultValue={activeMilestone}>
+      {isOwner && <CreateMilestoneDialog updateItems={updateItems} order={0} />}
       {items.map((item) => (
         <TimelineItem
           key={item.id}
@@ -202,7 +206,12 @@ export default function ContractTimeline({
             </div>
 
             {/* <CommentSection /> */}
-            <CreateMilestoneDialog updateItems={updateItems} order={item.id} />
+            {isOwner && (
+              <CreateMilestoneDialog
+                updateItems={updateItems}
+                order={item.id}
+              />
+            )}
           </TimelineContent>
         </TimelineItem>
       ))}

@@ -13,12 +13,12 @@ import {
   TimelineTitle,
 } from "@/components/ui/timeline";
 
-import FileUploadDialog from "./FileUploadDialog";
-import CommentSection from "./CommentSection";
-import CreateMilestoneDialog from "./CreateMilestoneDialog";
+import FileUploadDialog from "@/containers/Dashbord/Contract/FileHandlingComponents/FileUploadDialog";
+import CommentSection from "@/containers/Dashbord/Contract/ContractTimeline/CommentSection";
+import CreateMilestoneDialog from "@/containers/Dashbord/Contract/ContractTimeline/CreateMilestoneDialog";
 import { useRevalidator } from "react-router";
-import FileDownloadButton from "./FileDownloadButton";
-import PaymentDialog from "./PaymentDialog";
+import FileDownloadButton from "@/containers/Dashbord/Contract/FileHandlingComponents/FileDownloadButton";
+import PaymentDialog from "@/containers/Dashbord/Contract/PaymentComponents/PaymentDialog";
 
 function sortByOrder(arr: any[]) {
   return [...arr].sort((a, b) => a.order - b.order);

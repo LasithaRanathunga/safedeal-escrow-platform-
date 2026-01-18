@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tree, TreeItem, TreeItemLabel } from "@/components/tree";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import profilePic from "../assets/profile.jpeg";
+import profilePic from "@/assets/profile.jpeg";
 
 import { type ReactNode } from "react";
 

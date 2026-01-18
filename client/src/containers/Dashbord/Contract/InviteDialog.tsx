@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import PartnerSelector from "@/containers/PartnerSelector";
+import PartnerSelector from "@/containers/Dashbord/Contract/PartnerSelector";
 import { useRef, useState } from "react";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
 import { useParams, useRevalidator } from "react-router";

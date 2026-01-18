@@ -1,8 +1,8 @@
-import AppSidebar from "@/containers/AppSidebar";
-import ContractTimeline from "@/containers/ContractTimeline";
-import ContractStats from "@/containers/ContractStats";
-import { Separator } from "@/components/ui/separator";
-import { useLoaderData } from "react-router";
+import AppSidebar from "@/containers/Dashbord/AppSidebar";
+// import ContractTimeline from "@/containers/ContractTimeline";
+// import ContractStats from "@/containers/ContractStats";
+// import { Separator } from "@/components/ui/separator";
+// import { useLoaderData } from "react-router";
 import { Outlet } from "react-router";
 
 export default function Dashboard() {

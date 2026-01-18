@@ -1,12 +1,12 @@
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router";
 
-import LandingPage from "./containers/LandingPage";
+import LandingPage from "./containers/HomePage/LandingPage";
 import Home from "./pages/Home";
 import SignUp from "./pages/SignUp";
 import LogIn from "./pages/LogIn";
 import Dashboard from "./pages/Dashboard";
-import ContractsList from "./containers/ContractsList";
-import Contract from "./containers/Contract";
+import ContractsList from "@/containers/Dashbord/ContractsList/ContractsList";
+import Contract from "./containers/Dashbord/Contract/Contract";
 import PaymentComplete from "./pages/PaymentComplete";
 
 import {

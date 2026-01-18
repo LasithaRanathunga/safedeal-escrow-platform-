@@ -1,5 +1,6 @@
-import ContractStats from "./ContractStats";
-import ContractTimeline from "./ContractTimeline";
+// import ContractStats from "../../ContractStats";
+import ContractStats from "@/containers/Dashbord/Contract/ContractStats";
+import ContractTimeline from "@/containers/Dashbord/Contract/ContractTimeline/ContractTimeline";
 import { Separator } from "@/components/ui/separator";
 import { useLoaderData } from "react-router";
 

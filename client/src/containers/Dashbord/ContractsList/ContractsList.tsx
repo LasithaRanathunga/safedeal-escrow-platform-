@@ -10,9 +10,9 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-import ContractsListItem from "./ContractsListItem";
+import ContractsListItem from "@/containers/Dashbord/ContractsList/ContractsListItem";
 
-import CreateContractDialog from "./CreateContractDialog";
+import CreateContractDialog from "@/containers/Dashbord/CreateContractDialog";
 import { useLoaderData, useRevalidator } from "react-router";
 
 function NoContracts({ revalidater }: { revalidater: () => void }) {

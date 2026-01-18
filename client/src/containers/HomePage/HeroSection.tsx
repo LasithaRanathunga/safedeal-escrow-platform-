@@ -1,7 +1,7 @@
 import { TextEffect } from "@/components/ui/text-effect";
 import { AnimatedGroup } from "@/components/ui/animated-group";
 
-import appScreen from "../assets/64edd53bfdce27a5fac120fa_60fa3685b70d92aecc723198_Finance-20X-20--20Webflow-20--20Featured-20Image.png";
+import appScreen from "@/assets/64edd53bfdce27a5fac120fa_60fa3685b70d92aecc723198_Finance-20X-20--20Webflow-20--20Featured-20Image.png";
 
 const transitionVariants = {
   item: {

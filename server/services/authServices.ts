@@ -3,6 +3,9 @@ import "dotenv/config";
 import type { Request, Response, NextFunction } from "express";
 import db from "../db/db";
 import User from "../models/User";
+import bcrypt from "bcrypt";
+import * as userRepo from "../repositories/userRepository";
+import * as refreshTokenRepo from "../repositories/refreshTokenRepository";
 
 type JwtPayload = {
   email: string;
@@ -12,47 +15,44 @@ type JwtPayload = {
 const accessSecret = process.env.ACCESS_TOKEN_SECRET;
 const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
 
+export async function createUser(
+  email: string,
+  name: string,
+  password: string,
+) {
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  const user = await userRepo.createUser(email, name, hashedPassword);
+
+  return user;
+}
+
 export async function ifRefrechTokenExists(token: string) {
-  // check if refresh token exists in the database
-  const refreshToken = await db.refreshToken.findUnique({
-    where: {
-      token: token,
-    },
-  });
+  const refreshToken = await refreshTokenRepo.getRefreshToken(token);
 
   return refreshToken ? true : false;
 }
 
+// create refresh token and store it in the refreshToken table
 export async function createRefreshToken(user: JwtPayload, expiresIn: string) {
-  // create refresh token and store it in the refreshToken table
-  console.log(refreshSecret);
+  const { name, email } = user;
+
   const refreshToken = jwt.sign(
-    { name: user.name, email: user.email },
+    { name: name, email: email },
     refreshSecret as string,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
-  // get user data
-  const userData = await db.user.findUnique({
-    where: {
-      email: user.email,
-    },
-  });
+  const userData = await userRepo.getUserByEmail(email);
 
-  console.log("User Data:", userData);
-
-  // store refresh token in the database
   if (userData) {
     try {
-      const refresh = await db.refreshToken.create({
-        data: {
-          token: refreshToken,
-          userId: userData.id,
-          expiresAt: getTokenExpiry(expiresIn),
-        },
-      });
-
-      console.log("^^^^^^^^^^^^^^^^^", refresh);
+      const refresh = await refreshTokenRepo.createRefreshToken(
+        refreshToken,
+        userData.id,
+        getTokenExpiry(expiresIn),
+      );
     } catch (error) {
       console.error("Error storing refresh token:", error);
     }
@@ -62,16 +62,15 @@ export async function createRefreshToken(user: JwtPayload, expiresIn: string) {
 }
 
 export async function getAccessToken(user: JwtPayload, refreshToken: string) {
-  // create and return access token
   const isRefreshTokenValid: boolean = await ifRefrechTokenExists(refreshToken);
-  console.log("accessSecret:", accessSecret);
+
   if (!isRefreshTokenValid) {
     throw new Error("Invalid refresh token");
   } else {
     const accessToken = jwt.sign(
       { name: user.name, email: user.email },
       accessSecret as string,
-      { expiresIn: "15m" }
+      { expiresIn: "15m" },
     );
 
     return accessToken;
@@ -122,7 +121,7 @@ export function getTokenExpiry(duration: string): Date {
 export function authenticateToken(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN

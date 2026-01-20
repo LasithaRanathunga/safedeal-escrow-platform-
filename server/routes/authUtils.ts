@@ -25,11 +25,10 @@ export async function ifRefrechTokenExists(token: string) {
 
 export async function createRefreshToken(user: JwtPayload, expiresIn: string) {
   // create refresh token and store it in the refreshToken table
-  console.log(refreshSecret);
   const refreshToken = jwt.sign(
     { name: user.name, email: user.email },
     refreshSecret as string,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
   // get user data
@@ -38,8 +37,6 @@ export async function createRefreshToken(user: JwtPayload, expiresIn: string) {
       email: user.email,
     },
   });
-
-  console.log("User Data:", userData);
 
   // store refresh token in the database
   if (userData) {
@@ -71,7 +68,7 @@ export async function getAccessToken(user: JwtPayload, refreshToken: string) {
     const accessToken = jwt.sign(
       { name: user.name, email: user.email },
       accessSecret as string,
-      { expiresIn: "15m" }
+      { expiresIn: "15m" },
     );
 
     return accessToken;
@@ -122,7 +119,7 @@ export function getTokenExpiry(duration: string): Date {
 export function authenticateToken(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN

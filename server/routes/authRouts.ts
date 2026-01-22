@@ -43,7 +43,6 @@ const signupValidator: ValidationChain[] = [
     .withMessage("Password must be at least 8 characters long"),
 ];
 
-// ######### Signup Route #########
 router.post("/signup", signupValidator, signUp);
 
 // ######### Login Route #########

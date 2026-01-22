@@ -47,15 +47,11 @@ export async function createRefreshToken(user: JwtPayload, expiresIn: string) {
   const userData = await userRepo.getUserByEmail(email);
 
   if (userData) {
-    try {
-      const refresh = await refreshTokenRepo.createRefreshToken(
-        refreshToken,
-        userData.id,
-        getTokenExpiry(expiresIn),
-      );
-    } catch (error) {
-      console.error("Error storing refresh token:", error);
-    }
+    const refresh = await refreshTokenRepo.createRefreshToken(
+      refreshToken,
+      userData.id,
+      getTokenExpiry(expiresIn),
+    );
   }
 
   return refreshToken;
@@ -93,7 +89,9 @@ export function getTokenExpiry(duration: string): Date {
   const match = duration.match(regex);
 
   if (!match) {
-    throw new Error("Invalid duration format. Use like '15m', '2h', '7d'.");
+    throw new Error(
+      "Invalid duration format. Input should be like '15m', '2h', '7d'.",
+    );
   }
 
   const value = parseInt(match[1], 10);

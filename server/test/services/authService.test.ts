@@ -1,13 +1,9 @@
 import { getTokenExpiry } from "../../services/authServices";
-import {
-  describe,
-  expect,
-  it,
-  vi,
-  assert,
-  beforeEach,
-  afterEach,
-} from "vitest";
+import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+
+import * as userRepo from "../../repositories/userRepository";
+import * as cryproService from "../../services/cryptoService";
+import * as authService from "../../services/authServices";
 
 describe("getTokenExpiry", () => {
   beforeEach(() => {
@@ -57,5 +53,61 @@ describe("getTokenExpiry", () => {
     expect(() => getTokenExpiry("10")).toThrow(
       "Invalid duration format. Input should be like '15m', '2h', '7d'.",
     );
+  });
+});
+
+describe("createUser", () => {
+  const testUser = {
+    email: "user@test.com",
+    name: "Test User",
+    password: "plainPassword",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    id: 1,
+  };
+
+  it("hashes the given password and call the userRepository.createUser with the hashed password", async () => {
+    const hashedPassword = "hashedPassword";
+
+    const hashMock = vi
+      .spyOn(cryproService, "hashPassword")
+      .mockResolvedValue("hashedPassword");
+
+    const repoMock = vi
+      .spyOn(userRepo, "createUser")
+      .mockResolvedValue({ ...testUser, password: hashedPassword });
+
+    const createdUser = await authService.createUser(
+      testUser.email,
+      testUser.name,
+      testUser.password,
+    );
+
+    expect(hashMock).toHaveBeenCalledWith(testUser.password, 10);
+    expect(repoMock).toHaveBeenCalledWith(
+      testUser.email,
+      testUser.name,
+      hashedPassword,
+    );
+    expect(createdUser.password).toBe(hashedPassword);
+
+    hashMock.mockRestore();
+    repoMock.mockRestore();
+  });
+
+  it("throws an error if userRepo.createUser failed", async () => {
+    const createUserMock = vi
+      .spyOn(userRepo, "createUser")
+      .mockRejectedValue(new Error("Database Failier"));
+
+    const createdUser = async function () {
+      await authService.createUser(
+        testUser.email,
+        testUser.name,
+        testUser.password,
+      );
+    };
+
+    await expect(createdUser).rejects.toThrow("Database Failier");
   });
 });

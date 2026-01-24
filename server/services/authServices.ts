@@ -3,7 +3,7 @@ import "dotenv/config";
 import type { Request, Response, NextFunction } from "express";
 import db from "../db/db";
 import User from "../models/User";
-import bcrypt from "bcrypt";
+import { hashPassword } from "./cryptoService";
 import * as userRepo from "../repositories/userRepository";
 import * as refreshTokenRepo from "../repositories/refreshTokenRepository";
 
@@ -21,7 +21,7 @@ export async function createUser(
   password: string,
 ) {
   const saltRounds = 10;
-  const hashedPassword = await bcrypt.hash(password, saltRounds);
+  const hashedPassword = await hashPassword(password, saltRounds);
 
   const user = await userRepo.createUser(email, name, hashedPassword);
 

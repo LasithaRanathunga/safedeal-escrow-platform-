@@ -120,4 +120,45 @@ describe("RefreshToken Repository", () => {
       await expect(createdToken).rejects.toThrow("Foreign key constraint");
     });
   });
+
+  describe("getRefreshToken", () => {
+    beforeAll(async () => {
+      await db.refreshToken.deleteMany();
+      await db.user.deleteMany();
+
+      const testUser = {
+        name: "test User",
+        email: "test@email.com",
+        password: "testPassword",
+      };
+      //   create a test user because creating refreshToken without having user assosiated with userId which was used to create the test refreshToken can course a FOREIGN KEY constraint
+      const createdUser = await userRepository.createUser(
+        testUser.email,
+        testUser.name,
+        testUser.password,
+      );
+
+      const createdToken = await refreshTokenRepository.createRefreshToken(
+        testRefreshToken.token,
+        createdUser.id,
+        testRefreshToken.expiresAt,
+      );
+    });
+
+    it("return tokoen if exist", async () => {
+      const resovedToken = await refreshTokenRepository.getRefreshToken(
+        testRefreshToken.token,
+      );
+
+      expect(resovedToken?.token).toBe(testRefreshToken.token);
+    });
+
+    it("return null if the token does not exist", async () => {
+      const resovedToken = await refreshTokenRepository.getRefreshToken(
+        "this_token_does_not_exist",
+      );
+
+      expect(resovedToken).toBeNull;
+    });
+  });
 });

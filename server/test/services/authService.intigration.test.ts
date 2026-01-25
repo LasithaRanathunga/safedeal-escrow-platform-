@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as authService from "../../services/authServices";
 import db from "../../db/db";
 import becrypt from "bcrypt";
@@ -11,6 +11,10 @@ describe("create user Intigration test", () => {
   };
 
   beforeAll(async () => {
+    await db.user.deleteMany();
+  });
+
+  afterAll(async () => {
     await db.user.deleteMany();
   });
 

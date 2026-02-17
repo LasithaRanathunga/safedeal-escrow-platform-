@@ -4,6 +4,7 @@ import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import * as userRepo from "../../repositories/userRepository";
 import * as cryproService from "../../services/cryptoService";
 import * as authService from "../../services/authServices";
+import * as refreshTokenRepo from "../../repositories/refreshTokenRepository";
 
 describe("getTokenExpiry", () => {
   beforeEach(() => {
@@ -109,5 +110,49 @@ describe("createUser", () => {
     };
 
     await expect(createdUser).rejects.toThrow("Database Failier");
+  });
+});
+
+describe("ifRefrechTokenExists", () => {
+  it("Returns true if refresh token exist", async () => {
+    const getRefreshTokenMock = vi
+      .spyOn(refreshTokenRepo, "getRefreshToken")
+      .mockResolvedValue({
+        id: 1,
+        token: "test_token",
+        userId: 5,
+        createdAt: new Date(),
+        expiresAt: new Date(),
+      });
+
+    const ifRefreshTokenExist =
+      await authService.ifRefrechTokenExists("test_token");
+
+    expect(ifRefreshTokenExist).toBe(true);
+  });
+
+  it("Returns false it refresh token does not exist", async () => {
+    const getRefreshTokenMock = vi
+      .spyOn(refreshTokenRepo, "getRefreshToken")
+      .mockResolvedValue(null);
+
+    const ifRefreshTokenExist =
+      await authService.ifRefrechTokenExists("test_token");
+
+    expect(ifRefreshTokenExist).toBe(false);
+  });
+
+  it("throw an error id getRefreshToken throw an error", async () => {
+    const getRefreshTokenMock = vi
+      .spyOn(refreshTokenRepo, "getRefreshToken")
+      .mockRejectedValue(new Error("Error in getRefreshToken"));
+
+    const ifRefreshTokenExist = async () => {
+      await authService.ifRefrechTokenExists("test_token");
+    };
+
+    await expect(ifRefreshTokenExist).rejects.toThrow(
+      "Error in getRefreshToken",
+    );
   });
 });

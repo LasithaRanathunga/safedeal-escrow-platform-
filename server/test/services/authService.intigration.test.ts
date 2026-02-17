@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as authService from "../../services/authServices";
+import * as refreshTokenRepo from "../../repositories/refreshTokenRepository";
+import * as userRepo from "../../repositories/userRepository";
 import db from "../../db/db";
 import becrypt from "bcrypt";
 
-describe("create user Intigration test", () => {
+describe("createUser Intigration test", () => {
   const testUser = {
     email: "user@test.com",
     name: "Test User",
@@ -39,5 +41,30 @@ describe("create user Intigration test", () => {
     await expect(
       authService.createUser(testUser.email, testUser.name, testUser.password),
     ).rejects.toThrow("Unique constraint failed");
+  });
+});
+
+describe("ifTokenExist", () => {
+  beforeAll(async () => {
+    await db.refreshToken.deleteMany();
+    await db.user.deleteMany();
+  });
+
+  it("Returns true if Token Exist", async () => {
+    const testUser = await userRepo.createUser(
+      "test@user.com",
+      "test_user",
+      "test_pass",
+    );
+
+    const testToken = await refreshTokenRepo.createRefreshToken(
+      "test_token",
+      testUser.id,
+      new Date(),
+    );
+
+    const doesTokenExist = await authService.ifRefrechTokenExists("test_token");
+
+    expect(doesTokenExist).toBe(true);
   });
 });

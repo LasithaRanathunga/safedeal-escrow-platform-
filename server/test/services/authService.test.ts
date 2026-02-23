@@ -1,5 +1,6 @@
 import { getTokenExpiry } from "../../services/authServices";
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import jwt from "jsonwebtoken";
 
 import * as userRepo from "../../repositories/userRepository";
 import * as cryproService from "../../services/cryptoService";
@@ -154,5 +155,52 @@ describe("ifRefrechTokenExists", () => {
     await expect(ifRefreshTokenExist).rejects.toThrow(
       "Error in getRefreshToken",
     );
+  });
+});
+
+describe("createRefreshToken", () => {
+  const testUser = { name: "testUser", email: "test@email.com" };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("create and store refresh token when user exists", async () => {
+    vi.spyOn(jwt, "sign").mockReturnValue("mockedRefreshToken" as any);
+
+    vi.spyOn(userRepo, "getUserByEmail").mockResolvedValue({
+      id: "user123",
+    } as any);
+
+    const createRefreshSpy = vi
+      .spyOn(refreshTokenRepo, "createRefreshToken")
+      .mockResolvedValue({} as any);
+
+    const result = await authService.createRefreshToken(testUser, "7d");
+
+    expect(createRefreshSpy).toHaveBeenCalledWith(
+      "mockedRefreshToken",
+      "user123",
+      expect.any(Date),
+    );
+
+    expect(result).toBe("mockedRefreshToken");
+  });
+
+  it("should NOT store refresh token if user does not exist", async () => {
+    vi.spyOn(jwt, "sign").mockReturnValue("mockedRefreshToken" as any);
+
+    vi.spyOn(userRepo, "getUserByEmail").mockResolvedValue(null);
+
+    const createRefreshSpy = vi
+      .spyOn(refreshTokenRepo, "createRefreshToken")
+      .mockResolvedValue({} as any);
+
+    const result = async () => {
+      await authService.createRefreshToken(testUser, "7d");
+    };
+
+    await expect(result).rejects.toThrow("User does not exist");
+    expect(createRefreshSpy).not.toHaveBeenCalled();
   });
 });

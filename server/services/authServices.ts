@@ -52,6 +52,8 @@ export async function createRefreshToken(user: JwtPayload, expiresIn: string) {
       userData.id,
       getTokenExpiry(expiresIn),
     );
+  } else {
+    throw new Error("User does not exist");
   }
 
   return refreshToken;

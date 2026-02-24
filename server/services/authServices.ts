@@ -75,12 +75,12 @@ export async function getAccessToken(user: JwtPayload, refreshToken: string) {
   }
 }
 
-export function removeRefreshToken(token: string) {
+export async function removeRefreshToken(token: string) {
   // remove refresh token from the database
   try {
-    db.refreshToken.delete({ where: { token: token } });
+    await refreshTokenRepo.deleteRefreshToken(token);
   } catch (error) {
-    console.error("Error removing refresh token:", error);
+    throw new Error("RefreshToken removal failed");
   }
 }
 

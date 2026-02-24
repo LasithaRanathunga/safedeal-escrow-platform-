@@ -5,6 +5,7 @@ import * as userRepo from "../../repositories/userRepository";
 import db from "../../db/db";
 import becrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import test from "node:test";
 
 describe("createUser Intigration test", () => {
   const testUser = {
@@ -121,5 +122,57 @@ describe("createRefreshToken", () => {
     };
 
     await expect(createToken).rejects.toThrowError();
+  });
+});
+
+describe("removeRefreshToken", () => {
+  const testUser = {
+    name: "Test User",
+    email: "test@test.com",
+    password: "testpassword",
+  };
+
+  let createdRefreshToken: string;
+
+  beforeAll(async () => {
+    await db.refreshToken.deleteMany();
+    await db.user.deleteMany();
+
+    const createduser = await authService.createUser(
+      testUser.email,
+      testUser.name,
+      testUser.password,
+    );
+
+    createdRefreshToken = await authService.createRefreshToken(
+      {
+        name: testUser.name,
+        email: testUser.email,
+      },
+      "7d",
+    );
+  });
+
+  afterAll(async () => {
+    await db.refreshToken.deleteMany();
+    await db.user.deleteMany();
+  });
+
+  it("remove the existing token", async () => {
+    let doesTokenExist =
+      await authService.ifRefrechTokenExists(createdRefreshToken);
+    expect(doesTokenExist).toBe(true);
+
+    await authService.removeRefreshToken(createdRefreshToken);
+
+    doesTokenExist =
+      await authService.ifRefrechTokenExists(createdRefreshToken);
+    expect(doesTokenExist).toBe(false);
+  });
+
+  it("throw error if refresh token does not exist", async () => {
+    await expect(
+      authService.removeRefreshToken(createdRefreshToken),
+    ).rejects.toThrow("RefreshToken removal failed");
   });
 });

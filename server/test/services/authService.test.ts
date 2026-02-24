@@ -1,11 +1,21 @@
 import { getTokenExpiry } from "../../services/authServices";
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import {
+  describe,
+  expect,
+  it,
+  vi,
+  beforeEach,
+  afterEach,
+  beforeAll,
+  afterAll,
+} from "vitest";
 import jwt from "jsonwebtoken";
 
 import * as userRepo from "../../repositories/userRepository";
 import * as cryproService from "../../services/cryptoService";
 import * as authService from "../../services/authServices";
 import * as refreshTokenRepo from "../../repositories/refreshTokenRepository";
+import db from "../../db/db";
 
 describe("getTokenExpiry", () => {
   beforeEach(() => {
@@ -202,5 +212,66 @@ describe("createRefreshToken", () => {
 
     await expect(result).rejects.toThrow("User does not exist");
     expect(createRefreshSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe("getAccessToken", () => {
+  const testUser = {
+    name: "testUser",
+    email: "user@test.com",
+    password: "testPass",
+  };
+
+  beforeAll(async () => {
+    vi.restoreAllMocks();
+
+    await db.refreshToken.deleteMany();
+    await db.user.deleteMany();
+    await authService.createUser(
+      testUser.email,
+      testUser.name,
+      testUser.password,
+    );
+  });
+
+  afterAll(async () => {
+    await db.refreshToken.deleteMany();
+    await db.user.deleteMany();
+  });
+
+  it("throw error if refresh token is invalid", async () => {
+    const mockRefreshToken = "valid-refresh-token";
+
+    await expect(
+      authService.getAccessToken(testUser, mockRefreshToken),
+    ).rejects.toThrow("Invalid refresh token");
+  });
+
+  it("generate access token if refresh token is valid", async () => {
+    vi.spyOn(jwt, "sign").mockReturnValue("mocked-token" as any);
+
+    const createdRefreshToken = await authService.createRefreshToken(
+      {
+        name: testUser.name,
+        email: testUser.email,
+      },
+      "7d",
+    );
+
+    const result = await authService.getAccessToken(
+      {
+        name: testUser.name,
+        email: testUser.email,
+      },
+      createdRefreshToken,
+    );
+
+    expect(result).toBe("mocked-token");
+
+    expect(jwt.sign).toHaveBeenLastCalledWith(
+      { name: testUser.name, email: testUser.email },
+      expect.any(String),
+      { expiresIn: "15m" },
+    );
   });
 });

@@ -29,3 +29,9 @@ export async function getRefreshToken(token: string) {
 export async function deleteRefreshToken(token: string) {
   await db.refreshToken.delete({ where: { token: token } });
 }
+
+export async function deleteRefreshTokenOfUserId(userId: number) {
+  await db.refreshToken.delete({
+    where: { userId: userId },
+  });
+}

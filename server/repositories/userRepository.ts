@@ -25,3 +25,15 @@ export async function getUserByEmail(email: string) {
 
   return userData;
 }
+
+export async function getUserById(id: number) {
+  const user = await db.user.findUnique({
+    where: { id: id },
+  });
+
+  return user;
+}
+
+export async function deleteManyTokensOfUserId(userId: number) {
+  await db.refreshToken.deleteMany({ where: { userId: userId } });
+}

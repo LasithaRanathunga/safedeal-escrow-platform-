@@ -30,6 +30,9 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
+    env:
+      DATABASE_URL: postgresql://postgres:lassi@sql@localhost:5432/safedeal_test
+
     defaults:
       run:
         working-directory: server

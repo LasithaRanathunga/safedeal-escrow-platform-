@@ -32,7 +32,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: backend
+        working-directory: server
 
     steps:
       - name: Checkout repository
@@ -64,7 +64,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: frontend
+        working-directory: client
 
     steps:
       - name: Checkout repository

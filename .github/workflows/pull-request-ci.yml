@@ -32,6 +32,8 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:lassi@sql@localhost:5432/safedeal_test
+      ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+      REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
 
     defaults:
       run:

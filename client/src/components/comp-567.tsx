@@ -1,15 +1,14 @@
-"use client"
+"use client";
 
-import React from "react"
-import { hotkeysCoreFeature, syncDataLoaderFeature } from "@headless-tree/core"
-import { useTree } from "@headless-tree/react"
-import { FileIcon, FolderIcon, FolderOpenIcon } from "lucide-react"
+import { hotkeysCoreFeature, syncDataLoaderFeature } from "@headless-tree/core";
+import { useTree } from "@headless-tree/react";
+import { FileIcon, FolderIcon, FolderOpenIcon } from "lucide-react";
 
-import { Tree, TreeItem, TreeItemLabel } from "@/components/tree"
+import { Tree, TreeItem, TreeItemLabel } from "@/components/tree";
 
 interface Item {
-  name: string
-  children?: string[]
+  name: string;
+  children?: string[];
 }
 
 const items: Record<string, Item> = {
@@ -40,9 +39,9 @@ const items: Record<string, Item> = {
   operations: { name: "Operations", children: ["hr", "finance"] },
   hr: { name: "HR" },
   finance: { name: "Finance" },
-}
+};
 
-const indent = 20
+const indent = 20;
 
 export default function Component() {
   const tree = useTree<Item>({
@@ -58,7 +57,7 @@ export default function Component() {
       getChildren: (itemId) => items[itemId].children ?? [],
     },
     features: [syncDataLoaderFeature, hotkeysCoreFeature],
-  })
+  });
 
   return (
     <div className="flex h-full flex-col gap-2 *:first:grow">
@@ -86,7 +85,7 @@ export default function Component() {
                   </span>
                 </TreeItemLabel>
               </TreeItem>
-            )
+            );
           })}
         </Tree>
       </div>
@@ -107,5 +106,5 @@ export default function Component() {
         </a>
       </p>
     </div>
-  )
+  );
 }

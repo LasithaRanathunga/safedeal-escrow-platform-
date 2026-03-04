@@ -18,11 +18,13 @@ async function getUserInfo(acessToken: string) {
     });
     const userInfoRes = await userInfo.json();
     return userInfoRes;
-  } catch (error: ApiError) {
-    throw new ApiError(
-      error.message || "Failed to fetch user info",
-      error.code || "API_ERROR"
-    );
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new ApiError(
+        error.message || "Failed to fetch user info",
+        error.code || "API_ERROR",
+      );
+    }
   }
 }
 
@@ -40,11 +42,13 @@ async function handleLogOut(token: string) {
     console.log("$$$$$$$$", response);
 
     return response;
-  } catch (error: ApiError) {
-    throw new ApiError(
-      error.message || "Failed to LogOut user",
-      error.code || "API_ERROR"
-    );
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new ApiError(
+        error.message || "Failed to LogOut user",
+        error.code || "API_ERROR",
+      );
+    }
   }
 }
 
@@ -54,9 +58,8 @@ export default function UserAccount() {
 
   useEffect(() => {
     async function fetchUserData() {
-      const userData: { name: string; email: string } = await handleAcessToken(
-        getUserInfo
-      );
+      const userData: { name: string; email: string } =
+        await handleAcessToken(getUserInfo);
 
       if (userData) {
         setUserName(userData.name);

@@ -60,6 +60,13 @@ jobs:
       - name: Run unit tests
         run: npm run test
 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: servre/
+
   client-ci:
     name: Client CI
     runs-on: ubuntu-latest
@@ -88,3 +95,10 @@ jobs:
 
       - name: Build check
         run: npm run build
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: client/

@@ -1,0 +1,51 @@
+version: "3.9"
+
+services:
+  backend:
+    image: lasitharanathunga98/safedeal:pr-${PR_NUMBER}
+    container_name: backend-pr-${PR_NUMBER}
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://postgres:lassi%40sql@db:5432/safedeal
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "50${PR_NUMBER}:5000"
+    networks:
+      - pr-${PR_NUMBER}
+    command: >
+      sh -c "
+      echo 'Waiting for DB...' &&
+      until pg_isready -h db -U postgres; do sleep 2; done &&
+      echo 'Running migrations...' &&
+      npx prisma migrate deploy &&
+      echo 'Starting app...' &&
+      node dist/index.js
+      "
+
+  db:
+    image: postgres:15
+    container_name: db-pr-${PR_NUMBER}
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: lassi@sql
+      POSTGRES_DB: safedeal
+    volumes:
+      - db-data-${PR_NUMBER}:/var/lib/postgresql/data
+    networks:
+      - pr-${PR_NUMBER}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+networks:
+  pr-${PR_NUMBER}:
+
+volumes:
+  db-data-${PR_NUMBER}:

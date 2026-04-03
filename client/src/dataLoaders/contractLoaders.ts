@@ -3,6 +3,8 @@ import { handleAcessToken } from "@/fetch/fetchWrapper";
 import ApiError from "@/fetch/ApiError";
 import { redirect } from "react-router";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 export async function fetchContract({ params }: LoaderFunctionArgs) {
   //   const token = localStorage.getItem("accessToken") as string;
 
@@ -10,14 +12,14 @@ export async function fetchContract({ params }: LoaderFunctionArgs) {
     console.log("Fetching contract with ID:", contractId);
 
     const response = await fetch(
-      `http://localhost:3000/contract/getContract/${contractId}`,
+      `${serverBaseUrl}/contract/getContract/${contractId}`,
       {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
 
     if (!response.ok) {
@@ -28,7 +30,7 @@ export async function fetchContract({ params }: LoaderFunctionArgs) {
       } else {
         throw new ApiError(
           errorBody.message || "Failed to fetch contract",
-          errorBody.code || "API_ERROR"
+          errorBody.code || "API_ERROR",
         );
       }
     }
@@ -41,7 +43,7 @@ export async function fetchContract({ params }: LoaderFunctionArgs) {
   }
 
   const contractData = await handleAcessToken(
-    getContractInfo.bind(null, params.contractId as string)
+    getContractInfo.bind(null, params.contractId as string),
   );
   console.log("Contract data fetched:", contractData);
   return contractData;
@@ -49,22 +51,19 @@ export async function fetchContract({ params }: LoaderFunctionArgs) {
 
 export async function fetchContractsList() {
   async function getContractsList(token: string) {
-    const response = await fetch(
-      `http://localhost:3000/contract/getAllContracts`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await fetch(`${serverBaseUrl}/contract/getAllContracts`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     if (!response.ok) {
       const errorBody = await response.json();
       throw new ApiError(
         errorBody.message || "Failed to fetch contracts list",
-        errorBody.code || "API_ERROR"
+        errorBody.code || "API_ERROR",
       );
     }
 

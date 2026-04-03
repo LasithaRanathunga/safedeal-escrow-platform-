@@ -30,6 +30,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useRevalidator } from "react-router";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 const contractSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
   description: z.string().min(1, { message: "Description is required." }),
@@ -59,7 +61,7 @@ export default function CreateContractDialog({
   });
 
   async function createContract(data: ContractFormValues, token: string) {
-    const response = await fetch("http://localhost:3000/contract/create", {
+    const response = await fetch(`${serverBaseUrl}/contract/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -73,7 +75,7 @@ export default function CreateContractDialog({
       const errorBody = await response.json();
       throw new ApiError(
         errorBody.message || "Failed to create contract",
-        errorBody.code || "API_ERROR"
+        errorBody.code || "API_ERROR",
       );
     }
 

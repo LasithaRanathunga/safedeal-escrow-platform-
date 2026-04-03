@@ -25,6 +25,8 @@ import { handleAcessToken } from "@/fetch/fetchWrapper";
 import ApiError from "@/fetch/ApiError";
 import { ca } from "date-fns/locale";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 type FileStatus = "idle" | "dragging" | "uploading" | "error";
 
 interface FileError {
@@ -244,14 +246,14 @@ const UploadingAnimation = ({ progress }: { progress: number }) => (
 async function sendFileToServer(formData: FormData, token: string) {
   try {
     const res = await fetch(
-      `http://localhost:3000/file/upload?contractId=${contract}`,
+      `${serverBaseUrl}/file/upload?contractId=${contract}`,
       {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         body: formData,
-      }
+      },
     );
     return res;
   } catch (error: ApiError) {
@@ -298,7 +300,7 @@ export default function FileUpload({
       }
       return null;
     },
-    [maxFileSize]
+    [maxFileSize],
   );
 
   const validateFileType = useCallback(
@@ -316,7 +318,7 @@ export default function FileUpload({
       }
       return null;
     },
-    [acceptedFileTypes]
+    [acceptedFileTypes],
   );
 
   const handleError = useCallback(
@@ -330,28 +332,28 @@ export default function FileUpload({
         setStatus("idle");
       }, 3000);
     },
-    [onUploadError]
+    [onUploadError],
   );
 
   const sendFileToServer = useCallback(
     async function (formData: FormData, token: string) {
       try {
         const res = await fetch(
-          `http://localhost:3000/file/upload?contractId=${contractId}&itemId=${itemId}&type=${type}`,
+          `${serverBaseUrl}/file/upload?contractId=${contractId}&itemId=${itemId}&type=${type}`,
           {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
             },
             body: formData,
-          }
+          },
         );
         return res;
       } catch (error: ApiError) {
         throw new ApiError(error.messege, error.code || "UPLOAD_FAILED");
       }
     },
-    [contractId, itemId, type]
+    [contractId, itemId, type],
   );
 
   const simulateUpload = useCallback(
@@ -364,7 +366,7 @@ export default function FileUpload({
         const formData = new FormData();
         formData.append("file", uploadingFile);
         const responce = await handleAcessToken(
-          sendFileToServer.bind(null, formData)
+          sendFileToServer.bind(null, formData),
         );
 
         setProgress(100);
@@ -372,7 +374,7 @@ export default function FileUpload({
         onUploadSuccess();
       }
     },
-    [onUploadSuccess, sendFileToServer]
+    [onUploadSuccess, sendFileToServer],
   );
 
   const handleFileSelect = useCallback(
@@ -412,7 +414,7 @@ export default function FileUpload({
       validateFileType,
       validateFile,
       handleError,
-    ]
+    ],
   );
 
   const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
@@ -436,7 +438,7 @@ export default function FileUpload({
       const droppedFile = e.dataTransfer.files?.[0];
       if (droppedFile) handleFileSelect(droppedFile);
     },
-    [status, handleFileSelect]
+    [status, handleFileSelect],
   );
 
   const handleFileInputChange = useCallback(
@@ -445,7 +447,7 @@ export default function FileUpload({
       handleFileSelect(selectedFile || null);
       if (e.target) e.target.value = "";
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const triggerFileInput = useCallback(() => {
@@ -473,13 +475,13 @@ export default function FileUpload({
           <div
             className={cn(
               "relative mx-auto w-full overflow-hidden rounded-lg border border-gray-100 dark:border-white/[0.08] bg-white dark:bg-black/50",
-              error ? "border-red-500/50" : ""
+              error ? "border-red-500/50" : "",
             )}
           >
             <div
               className={cn(
                 "absolute inset-0 transition-opacity duration-300",
-                status === "dragging" ? "opacity-100" : "opacity-0"
+                status === "dragging" ? "opacity-100" : "opacity-0",
               )}
             >
               <div className="absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-blue-500/10 to-transparent" />

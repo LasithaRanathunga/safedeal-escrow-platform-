@@ -24,6 +24,8 @@ import { handleAcessToken } from "@/fetch/fetchWrapper";
 import { useState } from "react";
 import { useParams } from "react-router";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 const milestoneSchema = z.object({
   title: z.string().min(1, { message: "Title is required." }),
   description: z.string().min(1, { message: "Description is required." }),
@@ -58,23 +60,20 @@ export default function CreateMilestoneDialog({
 
     const payload = { ...data, contractId: contractId, order: order + 1 };
 
-    const response = await fetch(
-      "http://localhost:3000/contract/createMilestone",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const response = await fetch(`${serverBaseUrl}/contract/createMilestone`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
     if (!response.ok) {
       const errorBody = await response.json();
       throw new ApiError(
         errorBody.message || "Failed to create milestone",
-        errorBody.code || "API_ERROR"
+        errorBody.code || "API_ERROR",
       );
     }
 

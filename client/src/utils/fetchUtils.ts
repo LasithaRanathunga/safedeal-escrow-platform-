@@ -1,3 +1,5 @@
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 export async function apiFetch(url: string, options: RequestInit = {}) {
   const token = localStorage.getItem("accessToken");
 
@@ -14,7 +16,7 @@ export async function apiFetch(url: string, options: RequestInit = {}) {
 
     if (data.code === "TOKEN_EXPIRED") {
       // refresh access token
-      const refreshRes = await fetch("http://localhost:3000/auth/renew-token", {
+      const refreshRes = await fetch(`${serverBaseUrl}/auth/renew-token`, {
         method: "POST",
         credentials: "include",
       });

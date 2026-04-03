@@ -17,6 +17,8 @@ import { useNavigate } from "react-router";
 
 import loginImage from "../assets/log-in.jpg";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8, "Password must be at least 8 characters long"),
@@ -35,7 +37,7 @@ export default function LogIn() {
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      const result = await fetch("http://localhost:3000/auth/login", {
+      const result = await fetch(`${serverBaseUrl}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

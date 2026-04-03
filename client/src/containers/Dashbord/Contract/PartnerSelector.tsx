@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/popover";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 type User = {
   name: string;
   id: number;
@@ -30,17 +32,14 @@ type User = {
 
 async function getUsers(name: string, token: string) {
   try {
-    const response = await fetch(
-      "http://localhost:3000/user/searchByUsername",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: name }),
-      }
-    );
+    const response = await fetch(`${serverBaseUrl}/user/searchByUsername`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: name }),
+    });
 
     const users = await response.json();
 
@@ -114,7 +113,7 @@ export default function PartnerSelector({
                   <CheckIcon
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === user.name ? "opacity-100" : "opacity-0"
+                      value === user.name ? "opacity-100" : "opacity-0",
                     )}
                   />
                   <div className="flex w-full flex-col gap-1 ">

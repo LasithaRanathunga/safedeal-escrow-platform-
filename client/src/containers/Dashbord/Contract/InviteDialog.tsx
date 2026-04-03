@@ -14,6 +14,8 @@ import { useRef, useState } from "react";
 import { handleAcessToken } from "@/fetch/fetchWrapper";
 import { useParams, useRevalidator } from "react-router";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 export default function InviteDialog() {
   const selectedUserRef = useRef(null);
   const { contractId } = useParams();
@@ -21,20 +23,17 @@ export default function InviteDialog() {
   const [open, setOpen] = useState(false);
 
   async function invitePartner(accesstoken: string) {
-    const response = await fetch(
-      "http://localhost:3000/contract/invitePartner",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accesstoken}`,
-        },
-        body: JSON.stringify({
-          contractId: contractId,
-          partnerEmail: selectedUserRef.current.email,
-        }),
-      }
-    );
+    const response = await fetch(`${serverBaseUrl}/contract/invitePartner`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accesstoken}`,
+      },
+      body: JSON.stringify({
+        contractId: contractId,
+        partnerEmail: selectedUserRef.current.email,
+      }),
+    });
 
     return response;
   }

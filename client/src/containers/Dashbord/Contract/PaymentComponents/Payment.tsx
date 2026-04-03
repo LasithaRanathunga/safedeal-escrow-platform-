@@ -7,6 +7,7 @@ import ApiError from "@/fetch/ApiError";
 import { useParams } from "react-router";
 
 const stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
 
 export default function Payment({ item }: { item: any }) {
   if (stripePublicKey === undefined) {
@@ -18,17 +19,14 @@ export default function Payment({ item }: { item: any }) {
 
   const createPayment = async function (item: any, token: string) {
     try {
-      const response = await fetch(
-        "http://localhost:3000/payment/create-payment",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ contractId, milestoneId: item.id }),
-        }
-      );
+      const response = await fetch(`${serverBaseUrl}/payment/create-payment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ contractId, milestoneId: item.id }),
+      });
 
       const res = await response.json();
 
@@ -36,7 +34,7 @@ export default function Payment({ item }: { item: any }) {
     } catch (error) {
       throw new ApiError(
         error.message || "Failed to make the payment",
-        error.code || "API_ERROR"
+        error.code || "API_ERROR",
       );
     }
   };

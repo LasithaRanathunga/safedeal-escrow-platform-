@@ -1,8 +1,10 @@
 import ApiError from "./ApiError";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 export async function handleAcessToken(
   callback: (token: string) => Promise<undefined>,
-  failAction?: () => void
+  failAction?: () => void,
 ) {
   try {
     // Get token from localStorage
@@ -19,7 +21,7 @@ export async function handleAcessToken(
       try {
         const refreshToken = localStorage.getItem("refreshToken");
 
-        const res = await fetch("http://localhost:3000/auth/renew-token", {
+        const res = await fetch(`${serverBaseUrl}/auth/renew-token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

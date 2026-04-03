@@ -3,6 +3,8 @@ import { handleAcessToken } from "@/fetch/fetchWrapper";
 import ApiError from "@/fetch/ApiError";
 import { useParams } from "react-router";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 export default function FileDownloadButton({
   type,
   itemId,
@@ -15,13 +17,13 @@ export default function FileDownloadButton({
   const handleDownload = async function (token: string) {
     try {
       const res = await fetch(
-        `http://localhost:3000/file/download?contractId=${contractId}&itemId=${itemId}&type=${type}`,
+        `${serverBaseUrl}/file/download?contractId=${contractId}&itemId=${itemId}&type=${type}`,
         {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
       return res;
     } catch (error: ApiError) {

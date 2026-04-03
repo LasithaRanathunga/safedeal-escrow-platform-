@@ -7,9 +7,11 @@ import ApiError from "@/fetch/ApiError";
 import { useNavigate } from "react-router";
 import { useCallback } from "react";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 async function getUserInfo(acessToken: string) {
   try {
-    const userInfo = await fetch("http://localhost:3000/user/getCurrentUser", {
+    const userInfo = await fetch(`${serverBaseUrl}/user/getCurrentUser`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -21,14 +23,14 @@ async function getUserInfo(acessToken: string) {
   } catch (error: ApiError) {
     throw new ApiError(
       error.message || "Failed to fetch user info",
-      error.code || "API_ERROR"
+      error.code || "API_ERROR",
     );
   }
 }
 
 async function handleLogOut(token: string) {
   try {
-    const res = await fetch("http://localhost:3000/auth/logout", {
+    const res = await fetch(`${serverBaseUrl}/auth/logout`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +45,7 @@ async function handleLogOut(token: string) {
   } catch (error: ApiError) {
     throw new ApiError(
       error.message || "Failed to LogOut user",
-      error.code || "API_ERROR"
+      error.code || "API_ERROR",
     );
   }
 }
@@ -54,9 +56,8 @@ export default function UserAccount() {
 
   useEffect(() => {
     async function fetchUserData() {
-      const userData: { name: string; email: string } = await handleAcessToken(
-        getUserInfo
-      );
+      const userData: { name: string; email: string } =
+        await handleAcessToken(getUserInfo);
 
       if (userData) {
         setUserName(userData.name);

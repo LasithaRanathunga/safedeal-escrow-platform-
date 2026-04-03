@@ -16,6 +16,8 @@ import { z } from "zod";
 import { useNavigate } from "react-router";
 import signinImage from "../assets/signin.png";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 type SignupResponse = {
   message?: string;
   accessToken: string;
@@ -52,7 +54,7 @@ export default function SignUp() {
     console.log("on submit called");
     console.log(data);
 
-    const res = await fetch("http://localhost:3000/auth/signup", {
+    const res = await fetch(`${serverBaseUrl}/auth/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

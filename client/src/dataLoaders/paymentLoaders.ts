@@ -3,6 +3,8 @@ import { handleAcessToken } from "@/fetch/fetchWrapper";
 import ApiError from "@/fetch/ApiError";
 import { redirect } from "react-router";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 export async function finishPayment({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const contractId = url.searchParams.get("contractId");
@@ -12,7 +14,7 @@ export async function finishPayment({ request }: LoaderFunctionArgs) {
 
   const updateMilestone = async function (token: string) {
     try {
-      await fetch("http://localhost:3000/payment/complete-payment", {
+      await fetch(`${serverBaseUrl}/payment/complete-payment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -23,7 +25,7 @@ export async function finishPayment({ request }: LoaderFunctionArgs) {
     } catch (error) {
       throw new ApiError(
         error.message || "Failed to update milestone",
-        error.code || "API_ERROR"
+        error.code || "API_ERROR",
       );
     }
   };

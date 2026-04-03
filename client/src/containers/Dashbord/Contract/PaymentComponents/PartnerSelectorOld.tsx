@@ -13,6 +13,8 @@ import {
 } from "@/components/ui/autocomplete";
 import { set } from "zod";
 
+const serverBaseUrl = import.meta.env.VITE_SERVER_BASE_URL;
+
 type User = {
   name: string;
   id: number;
@@ -34,17 +36,14 @@ type User = {
 
 async function getUsers(name: string, token: string) {
   try {
-    const response = await fetch(
-      "http://localhost:3000/user/searchByUsername",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ name: name }),
-      }
-    );
+    const response = await fetch(`${serverBaseUrl}/user/searchByUsername`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: name }),
+    });
 
     const users = await response.json();
 

@@ -32,7 +32,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:lassi@sql@localhost:5432/safedeal_test
-      ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}-
+      ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
       REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
 
     defaults:
@@ -94,6 +94,9 @@ jobs:
         continue-on-error: true
 
       - name: Build check
+        env:
+          VITE_STRIPE_PUBLIC_KEY: ${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
+          VITE_SERVER_BASE_URL: ${{ secrets.VITE_SERVER_BASE_URL_DEV }}
         run: npm run build
 
       - name: SonarQube Scan
@@ -138,3 +141,21 @@ jobs:
 
       - name: Push backend image
         run: docker push lasitharanathunga98/safedeal:pr-${{ github.event.pull_request.number }}
+
+      - name: Build frontend
+        env:
+          VITE_STRIPE_PUBLIC_KEY: ${{ secrets.VITE_STRIPE_PUBLIC_KEY }}
+          VITE_SERVER_BASE_URL: ${{ secrets.VITE_SERVER_BASE_URL_PROD }}
+        run: |
+          cd client
+          npm ci
+          npm run build
+
+      - name: Copy frontend build to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "client/dist/*"
+          target: "/app/pr-envs/pr-${{ github.event.pull_request.number }}/frontend"

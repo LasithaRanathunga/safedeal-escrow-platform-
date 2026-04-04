@@ -1,0 +1,20 @@
+name: pr-environment-cleanup
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  cleanup:
+    name: Cleanup PR Environment
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cleanup PR
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_PUBPIC_IP }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            bash /app/scripts/delete-pr.sh ${{ github.event.pull_request.number }}

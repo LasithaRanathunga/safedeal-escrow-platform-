@@ -12,7 +12,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "50${PR_NUMBER}:5000"
+      - "50${PR_NUMBER}:3000"
     networks:
       - pr-${PR_NUMBER}
     command: >
@@ -46,6 +46,7 @@ services:
 
 networks:
   pr-${PR_NUMBER}:
+    name: pr-${PR_NUMBER}
 
 volumes:
   db-data-${PR_NUMBER}:

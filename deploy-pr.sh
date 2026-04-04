@@ -1,6 +1,8 @@
 #!/bin/bash
 
 PR_NUMBER=$1
+PUBLIC_IP=$2
+
 DIR="/app/pr-envs/pr-$PR_NUMBER"
 PORT="50$PR_NUMBER"
 
@@ -22,7 +24,7 @@ CONF="/etc/nginx/conf.d/pr-$PR_NUMBER.conf"
 sudo bash -c "cat > $CONF" <<EOF
 server {
     listen 80;
-    server_name pr-$PR_NUMBER.yourdomain.com;
+    server_name pr-$PR_NUMBER.$PUBLIC_IP.nip.io;
 
     root $DIR/frontend;
     index index.html;
@@ -32,7 +34,12 @@ server {
     }
 
     location /api {
-        proxy_pass http://localhost:$PORT;
+        proxy_pass http://localhost:$PORT/;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 EOF

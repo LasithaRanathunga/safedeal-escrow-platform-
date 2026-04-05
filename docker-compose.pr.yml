@@ -48,4 +48,4 @@ networks:
   net: {}
 
 volumes:
-  db-volium: {}
+  db-volume: {}

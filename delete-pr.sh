@@ -7,7 +7,7 @@ echo "Deleting PR $PR_NUMBER..."
 
 cd $DIR || exit
 
-docker compose down -v
+docker compose -p pr-$PR_NUMBER down -v
 rm -rf $DIR
 
 sudo rm -f /etc/nginx/conf.d/pr-$PR_NUMBER.conf

@@ -16,7 +16,7 @@ cp /app/templates/docker-compose.pr.yml docker-compose.yml
 export PR_NUMBER=$PR_NUMBER
 
 docker compose pull
-docker compose up -d
+docker compose -p pr-$PR_NUMBER up -d
 
 # Create nginx config
 CONF="/etc/nginx/conf.d/pr-$PR_NUMBER.conf"

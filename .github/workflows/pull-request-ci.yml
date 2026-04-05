@@ -159,6 +159,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY}}
           source: "client/dist/*"
           target: "/app/pr-envs/pr-${{ github.event.pull_request.number }}/frontend"
+          strip_components: 2
 
   deploy-pr:
     name: Deploy PR Environment

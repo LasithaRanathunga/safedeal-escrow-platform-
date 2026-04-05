@@ -45,8 +45,7 @@ services:
       start_period: 10s
 
 networks:
-  pr-${PR_NUMBER}:
-    name: pr-${PR_NUMBER}
+  net: {}
 
 volumes:
-  db-data-${PR_NUMBER}:
+  db-volium: {}

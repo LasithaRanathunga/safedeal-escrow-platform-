@@ -24,7 +24,7 @@ CONF="/etc/nginx/conf.d/pr-$PR_NUMBER.conf"
 sudo bash -c "cat > $CONF" <<EOF
 server {
     listen 80;
-    server_name pr-$PR_NUMBER.$PUBLIC_IP.nip.io;
+    server_name pr_$PR_NUMBER.$PUBLIC_IP.nip.io;
 
     root $DIR/frontend;
     index index.html;

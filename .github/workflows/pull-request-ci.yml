@@ -179,6 +179,6 @@ jobs:
       - name: Print Preview URL
         run: |
 
-          URL="http://pr-${{ github.event.pull_request.number }}.${{ secrets.EC2_PUBPIC_IP }}.nip.io"
+          URL="http://pr_${{ github.event.pull_request.number }}.${{ secrets.EC2_PUBPIC_IP }}.nip.io"
 
           echo "Preview URL: $URL"

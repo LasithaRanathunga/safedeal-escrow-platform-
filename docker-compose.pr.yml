@@ -14,7 +14,7 @@ services:
     ports:
       - "50${PR_NUMBER}:3000"
     networks:
-      - pr-${PR_NUMBER}
+      - net
     command: >
       sh -c "
       echo 'Waiting for DB...' &&
@@ -34,11 +34,11 @@ services:
       POSTGRES_PASSWORD: lassi@sql
       POSTGRES_DB: safedeal
     volumes:
-      - db-data-${PR_NUMBER}:/var/lib/postgresql/data
+      - db-volume:/var/lib/postgresql/data
     networks:
-      - pr-${PR_NUMBER}
+      - net
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -h db -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5

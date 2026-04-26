@@ -2,6 +2,7 @@ import { describe, it, beforeAll, afterAll, expect } from "vitest";
 import db from "../../db/db";
 import * as refreshTokenRepository from "../../repositories/refreshTokenRepository";
 import * as userRepository from "../../repositories/userRepository";
+import * as authService from "../../services/authServices";
 
 describe("RefreshToken Repository", () => {
   //   In Both

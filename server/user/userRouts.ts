@@ -8,6 +8,7 @@ router.post(
   "/searchByUsername",
   async (req: Request & { user?: any }, res: Response) => {
     try {
+      const username = req.body.name;
       const users = await db.user.findMany({
         where: {
           name: {
@@ -29,7 +30,7 @@ router.post(
       console.error("Error searching users:", error);
       return res.status(500).json({ message: "Error searching users", error });
     }
-  }
+  },
 );
 
 router.get(
@@ -51,7 +52,7 @@ router.get(
         error,
       });
     }
-  }
+  },
 );
 
 export default router;

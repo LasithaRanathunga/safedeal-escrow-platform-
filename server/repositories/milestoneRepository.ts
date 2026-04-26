@@ -25,10 +25,27 @@ export async function updateMilestone(
         order: milestoneId,
       },
     },
-    data: {
-      isPayed: true,
-    },
+    // data: {
+    //   isPayed: true,
+    // },
+    data: data,
   });
 
   return milestoneId;
+}
+
+export async function getMilestonesOfContract(
+  contractId: number,
+  sortOrder: "asc" | "desc" = "asc",
+) {
+  const milestones = await db.milestone.findMany({
+    where: {
+      contractId: contractId,
+    },
+    orderBy: {
+      order: sortOrder,
+    },
+  });
+
+  return milestones;
 }

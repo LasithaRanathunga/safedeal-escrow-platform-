@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import * as authServices from "../services/authServices";
-import * as userService from "../services/authServices";
 import * as userRepo from "../repositories/userRepository";
 import * as refreshTokenRepo from "../repositories/refreshTokenRepository";
 
@@ -22,7 +21,7 @@ export async function signUp(req: Request, res: Response) {
   let user: User;
 
   try {
-    user = await userService.createUser(
+    user = await authServices.createUser(
       req.body.email,
       req.body.fullname,
       req.body.password,

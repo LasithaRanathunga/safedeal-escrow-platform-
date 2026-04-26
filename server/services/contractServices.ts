@@ -1,5 +1,7 @@
 import db from "../db/db";
 import { type milestone, type contract } from "@prisma/client";
+import * as milestoneRepository from "../repositories/milestoneRepository";
+import * as contractRepository from "../repositories/contractRepository";
 
 type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
 
@@ -7,10 +9,10 @@ export async function updateContractInfo(contractId: string, db: TxClient) {
   let milestones: milestone[];
 
   try {
-    milestones = await db.milestone.findMany({
-      where: { contractId: parseInt(contractId, 10) },
-      orderBy: { deadline: "desc" }, // latest deadline first
-    });
+    milestones = await milestoneRepository.getMilestonesOfContract(
+      parseInt(contractId, 10),
+      "desc",
+    );
   } catch (error) {
     throw new Error("Error fetching milestones");
   }
@@ -26,12 +28,9 @@ export async function updateContractInfo(contractId: string, db: TxClient) {
 
   // Update contract
   try {
-    await db.contract.update({
-      where: { id: parseInt(contractId, 10) },
-      data: {
-        amount: totalAmount,
-        endDate: latestDeadline,
-      },
+    await contractRepository.updateContract(parseInt(contractId, 10), {
+      amount: totalAmount,
+      endDate: latestDeadline,
     });
   } catch (error) {
     throw new Error("Error updating contract");

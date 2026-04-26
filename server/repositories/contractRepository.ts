@@ -69,3 +69,21 @@ export async function updatePartner(
     data: data,
   });
 }
+
+export async function updateContract(
+  contractId: number,
+  data: {
+    title?: string;
+    description?: string;
+    endDate?: Date | null;
+    amount?: number | null;
+    status?: string;
+  },
+) {
+  const contract = await db.contract.update({
+    where: { id: contractId },
+    data: data,
+  });
+
+  return contract;
+}

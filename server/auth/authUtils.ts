@@ -29,7 +29,7 @@ export async function createRefreshToken(user: JwtPayload, expiresIn: string) {
   const refreshToken = jwt.sign(
     { name: user.name, email: user.email },
     refreshSecret as string,
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
   // get user data
@@ -71,17 +71,17 @@ export async function getAccessToken(user: JwtPayload, refreshToken: string) {
     const accessToken = jwt.sign(
       { name: user.name, email: user.email },
       accessSecret as string,
-      { expiresIn: "15m" }
+      { expiresIn: "15m" },
     );
 
     return accessToken;
   }
 }
 
-export function removeRefreshToken(token: string) {
+export async function removeRefreshToken(token: string) {
   // remove refresh token from the database
   try {
-    db.refreshToken.delete({ where: { token: token } });
+    await db.refreshToken.delete({ where: { token: token } });
   } catch (error) {
     console.error("Error removing refresh token:", error);
   }
@@ -122,7 +122,7 @@ export function getTokenExpiry(duration: string): Date {
 export function authenticateToken(
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // Bearer TOKEN

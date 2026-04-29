@@ -21,5 +21,14 @@ Freelance work often lacks trust—clients may not pay after receiving work, and
 <img src="https://github.com/user-attachments/assets/27fdede5-ffa6-4eb0-9132-eafa59d97811" width="600"/>
 
 <br />
+<br />
+<br />
 
-The platform integrates Stripe powered payments with an escrow-style system, ensuring that funds are securely held and only released upon milestone completion. This approach reduces disputes and builds trust by aligning payments with verified progress.
+## CI/CD Pipeline 
+
+Implemented a CI/CD pipeline that automatically builds and deploys each pull request to a dedicated preview environment. 
+
+- 🌐 Generates a unique preview URL for every PR
+- 🔗 Links the environment directly to the pull request
+- 🔍 Enables developers and testers to validate changes instantly
+- 🧪 Provides an isolated, production like environment per PR

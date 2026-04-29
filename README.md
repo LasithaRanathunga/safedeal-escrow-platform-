@@ -4,6 +4,10 @@
   <img src="client/src/assets/d2cffbb4-5fb2-4ff3-84d1-7034c6d0aac2_removalai_preview.png" height="60" />
 </p>
 
+
+
+🎥 Demo: https://www.linkedin.com/feed/update/urn:li:activity:7392465819739336704/
+
 ---
 
 SafeDeal is a web application designed to enable secure and transparent freelance collaborations. It provides a structured workflow for managing contracts, tracking milestones, and handling file exchanges between clients and freelancers.
@@ -34,3 +38,4 @@ Implemented a CI/CD pipeline that automatically builds and deploys each pull req
 - 🧪 Provides an isolated, production like environment per PR
 
 <img src="https://github.com/user-attachments/assets/bdbd30d6-234b-478a-8476-ae06aafb0f27" width="800"/>
+

@@ -10,4 +10,16 @@ SafeDeal is a web application designed to enable secure and transparent freelanc
 
 Freelance work often lacks trust—clients may not pay after receiving work, and freelancers may disappear after getting paid. SafeDeal addresses this through an escrow-based workflow where freelancers provide a preview of their work, while the final version is only accessible after payment, protecting both parties. Work can also be divided into smaller milestones, allowing payments to be released incrementally as progress is verified. This reduces risk, improves transparency, and keeps both sides aligned throughout the project.
 
-The platform integrates Stripe-powered payments with an escrow-style system, ensuring that funds are securely held and only released upon milestone completion. This approach reduces disputes and builds trust by aligning payments with verified progress.
+<img src="https://github.com/user-attachments/assets/e626abd7-67e9-4a55-9169-c391bb0102cb" width="600"/>
+
+<br />
+
+<img src="https://github.com/user-attachments/assets/53d4f50a-a5c4-4a19-92f1-4998e53d8610" width="600"/>
+
+<br />
+
+<img src="https://github.com/user-attachments/assets/27fdede5-ffa6-4eb0-9132-eafa59d97811" width="600"/>
+
+<br />
+
+The platform integrates Stripe powered payments with an escrow-style system, ensuring that funds are securely held and only released upon milestone completion. This approach reduces disputes and builds trust by aligning payments with verified progress.

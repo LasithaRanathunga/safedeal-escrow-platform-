@@ -451,3 +451,191 @@ describe("logOut controller", () => {
     );
   });
 });
+
+// ----- TESTING RENEWTOKEN CONTROLLER -----
+
+describe("renewToken controller", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should return 400 if refresh token is missing", async () => {
+    const req = {
+      body: {},
+    };
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+
+    await authController.renewToken(req as any, res as any);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Refresh token is required",
+    });
+
+    expect(refreshTokenRepo.getRefreshToken).not.toHaveBeenCalled();
+
+    expect(userRepo.getUserById).not.toHaveBeenCalled();
+
+    expect(authServices.getAccessToken).not.toHaveBeenCalled();
+  });
+
+  it("should return 403 if refresh token is invalid", async () => {
+    vi.mocked(refreshTokenRepo.getRefreshToken).mockResolvedValue(null);
+
+    const req = {
+      body: {
+        refreshToken: "invalid-token",
+      },
+    };
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+
+    await authController.renewToken(req as any, res as any);
+
+    expect(refreshTokenRepo.getRefreshToken).toHaveBeenCalledWith(
+      "invalid-token",
+    );
+
+    expect(res.status).toHaveBeenCalledWith(403);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Invalid refresh token",
+    });
+
+    expect(userRepo.getUserById).not.toHaveBeenCalled();
+
+    expect(authServices.getAccessToken).not.toHaveBeenCalled();
+  });
+
+  it("should return 403 if user does not exist", async () => {
+    vi.mocked(refreshTokenRepo.getRefreshToken).mockResolvedValue({
+      userId: 1,
+    } as any);
+
+    vi.mocked(userRepo.getUserById).mockResolvedValue(null);
+
+    const req = {
+      body: {
+        refreshToken: "valid-token",
+      },
+    };
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+
+    await authController.renewToken(req as any, res as any);
+
+    expect(refreshTokenRepo.getRefreshToken).toHaveBeenCalledWith(
+      "valid-token",
+    );
+
+    expect(userRepo.getUserById).toHaveBeenCalledWith(1);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Invalid refresh token",
+    });
+
+    expect(authServices.getAccessToken).not.toHaveBeenCalled();
+  });
+
+  it("should create new access token and return 200", async () => {
+    vi.mocked(refreshTokenRepo.getRefreshToken).mockResolvedValue({
+      userId: 1,
+    } as any);
+
+    const mockUser = {
+      id: 1,
+      email: "test@test.com",
+      password: "hashed-password",
+      name: "Alice",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    vi.mocked(userRepo.getUserById).mockResolvedValue(mockUser as any);
+
+    vi.mocked(authServices.getAccessToken).mockResolvedValue(
+      "new-access-token",
+    );
+
+    const req = {
+      body: {
+        refreshToken: "valid-token",
+      },
+    };
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+
+    await authController.renewToken(req as any, res as any);
+
+    expect(refreshTokenRepo.getRefreshToken).toHaveBeenCalledWith(
+      "valid-token",
+    );
+
+    expect(userRepo.getUserById).toHaveBeenCalledWith(1);
+
+    expect(authServices.getAccessToken).toHaveBeenCalledWith(
+      {
+        email: "test@test.com",
+        name: "Alice",
+      },
+      "valid-token",
+    );
+
+    expect(res.status).toHaveBeenCalledWith(200);
+
+    expect(res.json).toHaveBeenCalledWith({
+      accessToken: "new-access-token",
+    });
+  });
+
+  it("should return 500 if token verification fails", async () => {
+    vi.mocked(refreshTokenRepo.getRefreshToken).mockRejectedValue(
+      new Error("DB Error"),
+    );
+
+    const req = {
+      body: {
+        refreshToken: "valid-token",
+      },
+    };
+
+    const res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+
+    await authController.renewToken(req as any, res as any);
+
+    expect(refreshTokenRepo.getRefreshToken).toHaveBeenCalledWith(
+      "valid-token",
+    );
+
+    expect(res.status).toHaveBeenCalledWith(500);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Error verifying token",
+      }),
+    );
+
+    expect(userRepo.getUserById).not.toHaveBeenCalled();
+
+    expect(authServices.getAccessToken).not.toHaveBeenCalled();
+  });
+});

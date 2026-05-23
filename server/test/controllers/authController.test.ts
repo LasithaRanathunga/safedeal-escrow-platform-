@@ -11,6 +11,27 @@ vi.mock(import("../../repositories/userRepository"));
 vi.mock(import("../../repositories/refreshTokenRepository"));
 vi.mock(import("bcrypt"));
 
+function createMockRequest({
+  body = {},
+  user = {},
+  params = {},
+  query = {},
+} = {}) {
+  return {
+    body,
+    user,
+    params,
+    query,
+  };
+}
+
+function createMockResponse() {
+  return {
+    status: vi.fn().mockReturnThis(),
+    json: vi.fn(),
+  };
+}
+
 // ----- TESTING SIGNUP CONTROLLER -----
 describe("signUp controller", () => {
   beforeEach(() => {
@@ -18,19 +39,16 @@ describe("signUp controller", () => {
   });
 
   it("should return 400 if passwords do not match", async () => {
-    const req = {
+    const req = createMockRequest({
       body: {
         email: "test@test.com",
         fullname: "Alice",
         password: "1234",
         confirmpassword: "9999",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.signUp(req as any, res as any);
 
@@ -61,19 +79,16 @@ describe("signUp controller", () => {
 
     vi.mocked(authServices.getAccessToken).mockResolvedValue("access-token");
 
-    const req = {
+    const req = createMockRequest({
       body: {
         email: "test@test.com",
         fullname: "Alice",
         password: "1234",
         confirmpassword: "1234",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.signUp(req as any, res as any);
 
@@ -104,19 +119,16 @@ describe("signUp controller", () => {
   it("should return 500 if user creation fails", async () => {
     vi.mocked(authServices.createUser).mockRejectedValue(new Error("DB Error"));
 
-    const req = {
+    const req = createMockRequest({
       body: {
         email: "test@test.com",
         fullname: "Alice",
         password: "12345678",
         confirmpassword: "12345678",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.signUp(req as any, res as any);
 
@@ -136,19 +148,6 @@ describe("signUp controller", () => {
 
 // ----- TESTING LOGIN CONTROLLER -----
 
-function createMockRequest(body = {}) {
-  return {
-    body,
-  };
-}
-
-function createMockResponse() {
-  return {
-    status: vi.fn().mockReturnThis(),
-    json: vi.fn(),
-  };
-}
-
 describe("logIn controller", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -158,8 +157,10 @@ describe("logIn controller", () => {
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(null);
 
     const req = createMockRequest({
-      email: "test@test.com",
-      password: "12345678",
+      body: {
+        email: "test@test.com",
+        password: "12345678",
+      },
     });
 
     const res = createMockResponse();
@@ -198,8 +199,10 @@ describe("logIn controller", () => {
     vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
 
     const req = createMockRequest({
-      email: "test@test.com",
-      password: "wrong-password",
+      body: {
+        email: "test@test.com",
+        password: "wrong-password",
+      },
     });
 
     const res = createMockResponse();
@@ -249,8 +252,10 @@ describe("logIn controller", () => {
     vi.mocked(authServices.getAccessToken).mockResolvedValue("access-token");
 
     const req = createMockRequest({
-      email: "test@test.com",
-      password: "12345678",
+      body: {
+        email: "test@test.com",
+        password: "12345678",
+      },
     });
 
     const res = createMockResponse();
@@ -287,8 +292,10 @@ describe("logIn controller", () => {
     );
 
     const req = createMockRequest({
-      email: "test@test.com",
-      password: "12345678",
+      body: {
+        email: "test@test.com",
+        password: "12345678",
+      },
     });
 
     const res = createMockResponse();
@@ -317,8 +324,10 @@ describe("logIn controller", () => {
     vi.mocked(bcrypt.compare).mockRejectedValue(new Error("Bcrypt error"));
 
     const req = createMockRequest({
-      email: "test@test.com",
-      password: "12345678",
+      body: {
+        email: "test@test.com",
+        password: "12345678",
+      },
     });
 
     const res = createMockResponse();
@@ -345,16 +354,13 @@ describe("logOut controller", () => {
   it("should return 400 if user does not exist", async () => {
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(null);
 
-    const req = {
+    const req = createMockRequest({
       user: {
         email: "test@test.com",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.logOut(req as any, res as any);
 
@@ -425,16 +431,13 @@ describe("logOut controller", () => {
       new Error("DB Error"),
     );
 
-    const req = {
+    const req = createMockRequest({
       user: {
         email: "test@test.com",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.logOut(req as any, res as any);
 
@@ -460,14 +463,11 @@ describe("renewToken controller", () => {
   });
 
   it("should return 400 if refresh token is missing", async () => {
-    const req = {
+    const req = createMockRequest({
       body: {},
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.renewToken(req as any, res as any);
 
@@ -487,16 +487,13 @@ describe("renewToken controller", () => {
   it("should return 403 if refresh token is invalid", async () => {
     vi.mocked(refreshTokenRepo.getRefreshToken).mockResolvedValue(null);
 
-    const req = {
+    const req = createMockRequest({
       body: {
         refreshToken: "invalid-token",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.renewToken(req as any, res as any);
 
@@ -522,16 +519,13 @@ describe("renewToken controller", () => {
 
     vi.mocked(userRepo.getUserById).mockResolvedValue(null);
 
-    const req = {
+    const req = createMockRequest({
       body: {
         refreshToken: "valid-token",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.renewToken(req as any, res as any);
 
@@ -570,16 +564,13 @@ describe("renewToken controller", () => {
       "new-access-token",
     );
 
-    const req = {
+    const req = createMockRequest({
       body: {
         refreshToken: "valid-token",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.renewToken(req as any, res as any);
 
@@ -609,16 +600,13 @@ describe("renewToken controller", () => {
       new Error("DB Error"),
     );
 
-    const req = {
+    const req = createMockRequest({
       body: {
         refreshToken: "valid-token",
       },
-    };
+    });
 
-    const res = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn(),
-    };
+    const res = createMockResponse();
 
     await authController.renewToken(req as any, res as any);
 

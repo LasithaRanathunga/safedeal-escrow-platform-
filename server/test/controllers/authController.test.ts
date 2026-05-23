@@ -11,6 +11,18 @@ vi.mock(import("../../repositories/userRepository"));
 vi.mock(import("../../repositories/refreshTokenRepository"));
 vi.mock(import("bcrypt"));
 
+function createMockUser(overrides = {}) {
+  return {
+    id: 1,
+    email: "test@test.com",
+    password: "hashed-password",
+    name: "Alice",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  };
+}
+
 function createMockRequest({
   body = {},
   user = {},
@@ -32,12 +44,12 @@ function createMockResponse() {
   };
 }
 
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
 // ----- TESTING SIGNUP CONTROLLER -----
 describe("signUp controller", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it("should return 400 if passwords do not match", async () => {
     const req = createMockRequest({
       body: {
@@ -62,14 +74,7 @@ describe("signUp controller", () => {
   });
 
   it("should create user and return tokens", async () => {
-    const mockUser = {
-      id: 1,
-      email: "test@test.com",
-      password: "hashedpassword",
-      name: "Alice",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockUser = createMockUser();
 
     vi.mocked(authServices.createUser).mockResolvedValue(mockUser as any);
 
@@ -149,10 +154,6 @@ describe("signUp controller", () => {
 // ----- TESTING LOGIN CONTROLLER -----
 
 describe("logIn controller", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it("should return 400 if user does not exist", async () => {
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(null);
 
@@ -185,14 +186,7 @@ describe("logIn controller", () => {
   });
 
   it("should return 400 if password is incorrect", async () => {
-    const mockUser = {
-      id: 1,
-      email: "test@test.com",
-      password: "hashed-password",
-      name: "Alice",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockUser = createMockUser();
 
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(mockUser as any);
 
@@ -230,14 +224,7 @@ describe("logIn controller", () => {
   });
 
   it("should delete old refresh tokens and return new tokens", async () => {
-    const mockUser = {
-      id: 1,
-      email: "test@test.com",
-      password: "hashed-password",
-      name: "Alice",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockUser = createMockUser();
 
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(mockUser as any);
 
@@ -310,14 +297,7 @@ describe("logIn controller", () => {
   });
 
   it("should propagate error if bcrypt.compare fails", async () => {
-    const mockUser = {
-      id: 1,
-      email: "test@test.com",
-      password: "hashed-password",
-      name: "Alice",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockUser = createMockUser();
 
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(mockUser as any);
 
@@ -347,10 +327,6 @@ describe("logIn controller", () => {
 // ----- TESTING LOGOUT CONTROLLER -----
 
 describe("logOut controller", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it("should return 400 if user does not exist", async () => {
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(null);
 
@@ -376,14 +352,7 @@ describe("logOut controller", () => {
   });
 
   it("should delete refresh tokens and return 200", async () => {
-    const mockUser = {
-      id: 1,
-      email: "test@test.com",
-      password: "hashed-password",
-      name: "Alice",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockUser = createMockUser();
 
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(mockUser as any);
 
@@ -416,14 +385,7 @@ describe("logOut controller", () => {
   });
 
   it("should return 500 if deleting refresh tokens fails", async () => {
-    const mockUser = {
-      id: 1,
-      email: "test@test.com",
-      password: "hashed-password",
-      name: "Alice",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockUser = createMockUser();
 
     vi.mocked(userRepo.getUserByEmail).mockResolvedValue(mockUser as any);
 
@@ -458,10 +420,6 @@ describe("logOut controller", () => {
 // ----- TESTING RENEWTOKEN CONTROLLER -----
 
 describe("renewToken controller", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it("should return 400 if refresh token is missing", async () => {
     const req = createMockRequest({
       body: {},
@@ -549,14 +507,7 @@ describe("renewToken controller", () => {
       userId: 1,
     } as any);
 
-    const mockUser = {
-      id: 1,
-      email: "test@test.com",
-      password: "hashed-password",
-      name: "Alice",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockUser = createMockUser();
 
     vi.mocked(userRepo.getUserById).mockResolvedValue(mockUser as any);
 

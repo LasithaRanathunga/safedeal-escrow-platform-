@@ -36,3 +36,42 @@ export async function updateContractInfo(contractId: string, db: TxClient) {
     throw new Error("Error updating contract");
   }
 }
+
+export async function createMilestone(data: {
+  title: string;
+  description: string;
+  amount: string;
+  deadline: string;
+  order: string;
+  contractId: string;
+}) {
+  const { title, description, amount, deadline, order, contractId } = data;
+
+  const parsedContractId = parseInt(contractId, 10);
+
+  const parsedOrder = parseInt(order, 10);
+
+  return db.$transaction(async (tx: TxClient) => {
+    // shift later milestones
+    await milestoneRepository.shiftMilestoneOrder(
+      tx,
+      parsedContractId,
+      parsedOrder,
+    );
+
+    // insert new milestone
+    const milestone = await milestoneRepository.createMilestone(tx, {
+      title,
+      description,
+      amount: Number(amount),
+      deadline: new Date(deadline),
+      order: parsedOrder,
+      contractId: parsedContractId,
+    });
+
+    // update totals
+    await updateContractInfo(contractId, tx);
+
+    return milestone;
+  });
+}

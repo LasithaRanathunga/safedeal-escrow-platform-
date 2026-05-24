@@ -49,3 +49,41 @@ export async function getMilestonesOfContract(
 
   return milestones;
 }
+
+type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
+
+export async function shiftMilestoneOrder(
+  tx: TxClient,
+  contractId: number,
+  order: number,
+) {
+  return tx.milestone.updateMany({
+    where: {
+      contractId,
+      order: {
+        gte: order,
+      },
+    },
+    data: {
+      order: {
+        increment: 1,
+      },
+    },
+  });
+}
+
+export async function createMilestone(
+  tx: TxClient,
+  data: {
+    title: string;
+    description: string;
+    amount: number;
+    deadline: Date;
+    order: number;
+    contractId: number;
+  },
+) {
+  return tx.milestone.create({
+    data,
+  });
+}

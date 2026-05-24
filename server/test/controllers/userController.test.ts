@@ -145,3 +145,89 @@ describe("searchByUsername controller", () => {
     );
   });
 });
+
+// ----- TESTING GETCURRENTUSER CONTROLLER -----
+
+describe("getCurrentUser controller", () => {
+  it("should return current user details", async () => {
+    const mockUser = {
+      id: 1,
+      email: "alice@test.com",
+      name: "Alice",
+      password: "hashed-password",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    vi.mocked(userRepo.getUserByEmail).mockResolvedValue(mockUser);
+
+    const req = createMockRequest({
+      user: {
+        email: "alice@test.com",
+      },
+    });
+
+    const res = createMockResponse();
+
+    await userController.getCurrentUser(req as any, res as any);
+
+    expect(userRepo.getUserByEmail).toHaveBeenCalledWith("alice@test.com");
+
+    expect(res.status).toHaveBeenCalledWith(200);
+
+    expect(res.json).toHaveBeenCalledWith({
+      name: "Alice",
+      email: "alice@test.com",
+    });
+  });
+
+  it("should return undefined fields if user is not found", async () => {
+    vi.mocked(userRepo.getUserByEmail).mockResolvedValue(null);
+
+    const req = createMockRequest({
+      user: {
+        email: "missing@test.com",
+      },
+    });
+
+    const res = createMockResponse();
+
+    await userController.getCurrentUser(req as any, res as any);
+
+    expect(userRepo.getUserByEmail).toHaveBeenCalledWith("missing@test.com");
+
+    expect(res.status).toHaveBeenCalledWith(200);
+
+    expect(res.json).toHaveBeenCalledWith({
+      name: undefined,
+      email: undefined,
+    });
+  });
+
+  it("should return 500 if fetching current user fails", async () => {
+    vi.mocked(userRepo.getUserByEmail).mockRejectedValue(
+      new Error("Database error"),
+    );
+
+    const req = createMockRequest({
+      user: {
+        email: "alice@test.com",
+      },
+    });
+
+    const res = createMockResponse();
+
+    await userController.getCurrentUser(req as any, res as any);
+
+    expect(userRepo.getUserByEmail).toHaveBeenCalledWith("alice@test.com");
+
+    expect(res.status).toHaveBeenCalledWith(500);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message: "Error fetching current user",
+        code: "NO_USER_FOUND",
+      }),
+    );
+  });
+});

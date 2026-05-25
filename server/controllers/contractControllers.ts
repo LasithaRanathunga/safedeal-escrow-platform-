@@ -33,47 +33,17 @@ export async function createMilestone(
   req: Request & { user?: any },
   res: Response,
 ) {
-  const { title, description, amount, deadline, order, contractId } = req.body;
-
   try {
-    // here order means the position (sequence index) of a milestone within a specific contract
-    // in this step of the transaction it Move all milestones in this contract that are at or after the new milestone's position one step forward. This creates space to insert the new milestone in the correct place.
-    await db.$transaction(async (tx) => {
-      const increaseOrder = await tx.milestone.updateMany({
-        where: {
-          contractId: parseInt(contractId, 10),
-          order: {
-            gte: parseInt(order, 10),
-          },
-        },
-        data: {
-          order: {
-            increment: 1,
-          },
-        },
-      });
+    const milestone = await contractServices.createMilestone(req.body);
 
-      const milestone = await tx.milestone.create({
-        data: {
-          title,
-          description,
-          amount: Number(amount),
-          deadline: new Date(deadline),
-          order,
-          contractId: parseInt(contractId, 10),
-        },
-      });
-
-      try {
-        await contractServices.updateContractInfo(contractId, tx);
-      } catch (error) {
-        throw new Error("Error updating contract info");
-      }
-
-      res.status(201).json({ milestone });
+    return res.status(201).json({
+      milestone,
     });
   } catch (error) {
-    return res.status(500).json({ message: "Error creating milestone", error });
+    return res.status(500).json({
+      message: "Error creating milestone",
+      error,
+    });
   }
 }
 

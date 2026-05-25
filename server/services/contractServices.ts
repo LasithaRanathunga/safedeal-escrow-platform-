@@ -51,6 +51,9 @@ export async function createMilestone(data: {
 
   const parsedOrder = parseInt(order, 10);
 
+  // here order means the position (sequence index) of a milestone within a specific contract
+  // in this step of the transaction it Move all milestones in this contract that are at or after the new milestone's position one step forward. This creates space to insert the new milestone in the correct place.
+
   return db.$transaction(async (tx: TxClient) => {
     // shift later milestones
     await milestoneRepository.shiftMilestoneOrder(

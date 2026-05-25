@@ -1,5 +1,7 @@
 import db from "../db/db";
 
+type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
+
 export async function getMilestone(contractId: number, milestoneId: number) {
   const milestoneInfo = await db.milestone.findUnique({
     where: {
@@ -49,8 +51,6 @@ export async function getMilestonesOfContract(
 
   return milestones;
 }
-
-type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
 
 export async function shiftMilestoneOrder(
   tx: TxClient,

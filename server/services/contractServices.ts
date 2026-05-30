@@ -2,6 +2,7 @@ import db from "../db/db";
 import { type milestone, type contract } from "@prisma/client";
 import * as milestoneRepository from "../repositories/milestoneRepository";
 import * as contractRepository from "../repositories/contractRepository";
+import * as userRepository from "../repositories/userRepository";
 
 type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
 
@@ -77,4 +78,72 @@ export async function createMilestone(data: {
 
     return milestone;
   });
+}
+
+function getActiveMilestone(
+  milestones: {
+    order: number;
+    isPayed: boolean;
+  }[],
+) {
+  let activeMilestone = 0;
+
+  for (const milestone of milestones) {
+    if (milestone.isPayed && milestone.order > activeMilestone) {
+      activeMilestone = milestone.order;
+    }
+  }
+
+  return activeMilestone;
+}
+
+function getUserRole(
+  contract: {
+    buyerId: number | null;
+    sellerId: number | null;
+  },
+  userId: string,
+) {
+  const parsedId = Number(userId);
+
+  if (contract.buyerId === parsedId) {
+    return "buyer";
+  }
+
+  if (contract.sellerId === parsedId) {
+    return "seller";
+  }
+
+  return undefined;
+}
+
+type CurrentUser = {
+  id: string;
+  email: string;
+};
+
+export async function getContractDetails(
+  contractId: number,
+  currentUser: CurrentUser,
+) {
+  const contract = await contractRepository.getContractById(contractId);
+
+  if (!contract) {
+    return null;
+  }
+
+  const owner = await userRepository.getUserById(contract.ownerId);
+
+  const activeMilestone = getActiveMilestone(contract.milestones);
+
+  const isOwner = owner?.email === currentUser.email;
+
+  const role = getUserRole(contract, currentUser.id);
+
+  return {
+    ...contract,
+    isOwner,
+    activeMilestone,
+    role,
+  };
 }

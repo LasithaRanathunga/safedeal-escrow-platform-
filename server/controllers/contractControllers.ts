@@ -47,15 +47,74 @@ export async function createMilestone(
   }
 }
 
+// export async function getContract(
+//   req: Request & { user?: any },
+//   res: Response,
+// ) {
+//   const contractId = req.params.contractId;
+
+//   try {
+//     const contract = await contractRepo.getContractById(
+//       parseInt(contractId, 10),
+//     );
+
+//     if (!contract) {
+//       return res.status(404).json({
+//         status: "error",
+//         code: "NO_CONTRACT_FOUND",
+//         message: "Contract not found",
+//       });
+//     }
+
+//     // Track the newest paid milestone order
+//     let activeMilestone = 0;
+
+//     if (contract.milestones.length > 0) {
+//       for (const item of contract.milestones) {
+//         if (item.isPayed && item.order > activeMilestone) {
+//           activeMilestone = item.order;
+//         }
+//       }
+//     }
+
+//     const owner = await userRepo.getUserById(contract.ownerId);
+
+//     // Check if current user is the owner
+//     const isOwner = owner?.email === req.user.email;
+
+//     // Add extra fields to contract response
+//     const contractWithRole = {
+//       ...contract,
+//       isOwner: isOwner,
+//       activeMilestone: activeMilestone,
+//       role: undefined as string | undefined,
+//     };
+
+//     // Determine if current user is buyer or seller
+//     if (contract.buyerId === parseInt(req.user.id, 10)) {
+//       contractWithRole.role = "buyer";
+//     } else if (contract.sellerId === parseInt(req.user.id, 10)) {
+//       contractWithRole.role = "seller";
+//     }
+
+//     return res.status(200).json({ contract: contractWithRole });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching contract", error });
+//   }
+
+//   // res.status(200).json({ message: "Fetch contract endpoint" });
+// }
+
 export async function getContract(
   req: Request & { user?: any },
   res: Response,
 ) {
-  const contractId = req.params.contractId;
+  const contractId = Number(req.params.contractId);
 
   try {
-    const contract = await contractRepo.getContractById(
-      parseInt(contractId, 10),
+    const contract = await contractServices.getContractDetails(
+      contractId,
+      req.user,
     );
 
     if (!contract) {
@@ -66,43 +125,13 @@ export async function getContract(
       });
     }
 
-    // Track the highest paid milestone order
-    let activeMilestone = 0;
-
-    if (contract.milestones.length > 0) {
-      for (const item of contract.milestones) {
-        if (item.isPayed && item.order > activeMilestone) {
-          activeMilestone = item.order;
-        }
-      }
-    }
-
-    const owner = await userRepo.getUserById(contract.ownerId);
-
-    // Check if current user is the owner
-    const isOwner = owner?.email === req.user.email;
-
-    // Add extra fields to contract response
-    const contractWithRole = {
-      ...contract,
-      isOwner: isOwner,
-      activeMilestone: activeMilestone,
-      role: undefined as string | undefined,
-    };
-
-    // Determine if current user is buyer or seller
-    if (contract.buyerId === parseInt(req.user.id, 10)) {
-      contractWithRole.role = "buyer";
-    } else if (contract.sellerId === parseInt(req.user.id, 10)) {
-      contractWithRole.role = "seller";
-    }
-
-    return res.status(200).json({ contract: contractWithRole });
+    return res.status(200).json({ contract });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching contract", error });
+    return res.status(500).json({
+      message: "Error fetching contract",
+      error,
+    });
   }
-
-  // res.status(200).json({ message: "Fetch contract endpoint" });
 }
 
 export async function getAllContracts(

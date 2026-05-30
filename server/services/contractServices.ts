@@ -147,3 +147,14 @@ export async function getContractDetails(
     role,
   };
 }
+
+export async function getUserContracts(userId: string) {
+  const contracts = await contractRepository.getAllContractsOfUser(
+    Number.parseInt(userId, 10),
+  );
+
+  return contracts.map((contract) => ({
+    ...contract,
+    role: getUserRole(contract, userId),
+  }));
+}

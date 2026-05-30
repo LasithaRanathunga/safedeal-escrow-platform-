@@ -134,32 +134,51 @@ export async function getContract(
   }
 }
 
+// export async function getAllContracts(
+//   req: Request & { user?: any },
+//   res: Response,
+// ) {
+//   try {
+//     const contracts = await contractRepo.getAllContractsOfUser(
+//       parseInt(req.user.id, 10),
+//     );
+
+//     const contractsWithRole = contracts.map((contract: contract) => {
+//       const contractWithRole = {
+//         ...contract,
+//         role: undefined as string | undefined,
+//       };
+
+//       if (contract.buyerId === parseInt(req.user.id, 10)) {
+//         contractWithRole.role = "buyer";
+//       } else if (contract.sellerId === parseInt(req.user.id, 10)) {
+//         contractWithRole.role = "seller";
+//       }
+//       return contractWithRole;
+//     });
+
+//     return res.status(200).json({ contractsWithRole });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error fetching contracts", error });
+//   }
+// }
+
 export async function getAllContracts(
   req: Request & { user?: any },
   res: Response,
 ) {
   try {
-    const contracts = await contractRepo.getAllContractsOfUser(
-      parseInt(req.user.id, 10),
-    );
+    const contracts = await contractServices.getUserContracts(req.user.id);
 
-    const contractsWithRole = contracts.map((contract: contract) => {
-      const contractWithRole = {
-        ...contract,
-        role: undefined as string | undefined,
-      };
-
-      if (contract.buyerId === parseInt(req.user.id, 10)) {
-        contractWithRole.role = "buyer";
-      } else if (contract.sellerId === parseInt(req.user.id, 10)) {
-        contractWithRole.role = "seller";
-      }
-      return contractWithRole;
+    return res.status(200).json({
+      contracts,
     });
-
-    return res.status(200).json({ contractsWithRole });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching contracts", error });
+    console.error(error);
+
+    return res.status(500).json({
+      message: "Error fetching contracts",
+    });
   }
 }
 

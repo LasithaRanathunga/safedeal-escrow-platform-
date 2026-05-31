@@ -158,3 +158,41 @@ export async function getUserContracts(userId: string) {
     role: getUserRole(contract, userId),
   }));
 }
+
+export async function invitePartner(contractId: number, partnerEmail: string) {
+  const partner = await userRepository.getUserByEmail(partnerEmail);
+
+  if (!partner) {
+    throw new Error("Partner not found");
+  }
+
+  const contract = await contractRepository.getContractById(contractId);
+
+  if (!contract) {
+    throw new Error("Contract not found");
+  }
+
+  if (partner.id === contract.ownerId) {
+    throw new Error("Owner cannot be invited as a partner");
+  }
+
+  if (!contract.sellerId) {
+    await contractRepository.updatePartner(contractId, {
+      sellerId: partner.id,
+    });
+
+    return;
+  }
+
+  if (!contract.buyerId) {
+    await contractRepository.updatePartner(contractId, {
+      buyerId: partner.id,
+    });
+
+    return;
+  }
+
+  throw new Error(
+    "Both buyer and seller are already assigned for this contract",
+  );
+}

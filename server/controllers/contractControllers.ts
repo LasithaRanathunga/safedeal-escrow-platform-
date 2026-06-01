@@ -95,33 +95,6 @@ export async function getAllContracts(
   }
 }
 
-// export async function invitePartner(
-//   req: Request & { user?: any },
-//   res: Response,
-// ) {
-//   const { contractId, partnerEmail } = req.body;
-
-//   const partner = await userRepo.getUserByEmail(partnerEmail);
-
-//   const contract = await contractRepo.getContractById(parseInt(contractId, 10));
-
-//   if (!contract?.sellerId) {
-//     await contractRepo.updatePartner(parseInt(contractId, 10), {
-//       sellerId: partner?.id || null,
-//     });
-//   } else if (!contract.buyerId) {
-//     await contractRepo.updatePartner(parseInt(contractId, 10), {
-//       buyerId: partner?.id || null,
-//     });
-//   } else {
-//     return res.status(400).json({
-//       message: "Both buyer and seller are already assigned for this contract",
-//     });
-//   }
-
-//   return res.status(200).json({ message: "Partner invited successfully" });
-// }
-
 export async function invitePartner(
   req: Request & { user?: any },
   res: Response,

@@ -1,5 +1,7 @@
 import db from "../db/db";
 
+type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
+
 export async function createContract(contract: {
   title: any;
   description: any;
@@ -86,4 +88,21 @@ export async function updateContract(
   });
 
   return contract;
+}
+
+export async function updateContractTx(
+  tx: TxClient,
+  contractId: number,
+  data: {
+    title?: string;
+    description?: string;
+    endDate?: Date | null;
+    amount?: number | null;
+    status?: string;
+  },
+) {
+  return tx.contract.update({
+    where: { id: contractId },
+    data,
+  });
 }

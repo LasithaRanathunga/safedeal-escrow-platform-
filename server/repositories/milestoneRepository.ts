@@ -15,6 +15,17 @@ export async function getMilestone(contractId: number, milestoneId: number) {
   return milestoneInfo;
 }
 
+export async function getMilestonesOfContractTx(
+  tx: TxClient,
+  contractId: number,
+  sortOrder: "asc" | "desc" = "asc",
+) {
+  return tx.milestone.findMany({
+    where: { contractId },
+    orderBy: { order: sortOrder },
+  });
+}
+
 export async function updateMilestone(
   contractId: number,
   milestoneId: number,

@@ -6,7 +6,7 @@ import * as userRepository from "../repositories/userRepository";
 
 type TxClient = Parameters<Parameters<typeof db.$transaction>[0]>[0];
 
-export async function updateContractInfo(contractId: string, db: TxClient) {
+export async function updateContractInfo(contractId: string) {
   let milestones: milestone[];
 
   try {
@@ -30,6 +30,36 @@ export async function updateContractInfo(contractId: string, db: TxClient) {
   // Update contract
   try {
     await contractRepository.updateContract(parseInt(contractId, 10), {
+      amount: totalAmount,
+      endDate: latestDeadline,
+    });
+  } catch (error) {
+    throw new Error("Error updating contract");
+  }
+}
+
+export async function updateContractInfoTx(contractId: string, tx: TxClient) {
+  let milestones: milestone[];
+
+  try {
+    milestones = await milestoneRepository.getMilestonesOfContractTx(
+      tx,
+      parseInt(contractId, 10),
+      "desc",
+    );
+  } catch (error) {
+    throw new Error("Error fetching milestones");
+  }
+
+  const totalAmount = milestones.reduce(
+    (sum, milestone) => sum + milestone.amount,
+    0,
+  );
+
+  const latestDeadline = milestones.length > 0 ? milestones[0].deadline : null;
+
+  try {
+    await contractRepository.updateContractTx(tx, parseInt(contractId, 10), {
       amount: totalAmount,
       endDate: latestDeadline,
     });
@@ -74,7 +104,7 @@ export async function createMilestone(data: {
     });
 
     // update totals
-    await updateContractInfo(contractId, tx);
+    await updateContractInfoTx(contractId, tx);
 
     return milestone;
   });

@@ -427,3 +427,125 @@ describe("getContractDetails", () => {
     expect(result?.isOwner).toBe(false);
   });
 });
+
+describe("getUserContracts", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should return contracts with buyer role", async () => {
+    vi.mocked(contractRepository.getAllContractsOfUser).mockResolvedValue([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+      },
+    ] as any);
+
+    const result = await contractServices.getUserContracts("10");
+
+    expect(contractRepository.getAllContractsOfUser).toHaveBeenCalledWith(10);
+
+    expect(result).toEqual([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+        role: "buyer",
+      },
+    ]);
+  });
+
+  it("should return contracts with seller role", async () => {
+    vi.mocked(contractRepository.getAllContractsOfUser).mockResolvedValue([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+      },
+    ] as any);
+
+    const result = await contractServices.getUserContracts("20");
+
+    expect(result).toEqual([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+        role: "seller",
+      },
+    ]);
+  });
+
+  it("should return contracts with undefined role when user is neither buyer nor seller", async () => {
+    vi.mocked(contractRepository.getAllContractsOfUser).mockResolvedValue([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+      },
+    ] as any);
+
+    const result = await contractServices.getUserContracts("99");
+
+    expect(result).toEqual([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+        role: undefined,
+      },
+    ]);
+  });
+
+  it("should correctly assign roles for multiple contracts", async () => {
+    vi.mocked(contractRepository.getAllContractsOfUser).mockResolvedValue([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+      },
+      {
+        id: 2,
+        buyerId: 30,
+        sellerId: 10,
+      },
+      {
+        id: 3,
+        buyerId: 40,
+        sellerId: 50,
+      },
+    ] as any);
+
+    const result = await contractServices.getUserContracts("10");
+
+    expect(result).toEqual([
+      {
+        id: 1,
+        buyerId: 10,
+        sellerId: 20,
+        role: "buyer",
+      },
+      {
+        id: 2,
+        buyerId: 30,
+        sellerId: 10,
+        role: "seller",
+      },
+      {
+        id: 3,
+        buyerId: 40,
+        sellerId: 50,
+        role: undefined,
+      },
+    ]);
+  });
+
+  it("should return an empty array when no contracts exist", async () => {
+    vi.mocked(contractRepository.getAllContractsOfUser).mockResolvedValue([]);
+
+    const result = await contractServices.getUserContracts("10");
+
+    expect(result).toEqual([]);
+  });
+});

@@ -549,3 +549,103 @@ describe("getUserContracts", () => {
     expect(result).toEqual([]);
   });
 });
+
+describe("invitePartner", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should throw when partner does not exist", async () => {
+    vi.mocked(userRepository.getUserByEmail).mockResolvedValue(null);
+
+    await expect(
+      contractServices.invitePartner(1, "partner@test.com"),
+    ).rejects.toThrow("Partner not found");
+  });
+
+  it("should throw when contract does not exist", async () => {
+    vi.mocked(userRepository.getUserByEmail).mockResolvedValue({
+      id: 5,
+    } as any);
+
+    vi.mocked(contractRepository.getContractById).mockResolvedValue(null);
+
+    await expect(
+      contractServices.invitePartner(1, "partner@test.com"),
+    ).rejects.toThrow("Contract not found");
+  });
+
+  it("should throw when owner is invited as partner", async () => {
+    vi.mocked(userRepository.getUserByEmail).mockResolvedValue({
+      id: 10,
+    } as any);
+
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      ownerId: 10,
+      sellerId: null,
+      buyerId: null,
+    } as any);
+
+    await expect(
+      contractServices.invitePartner(1, "partner@test.com"),
+    ).rejects.toThrow("Owner cannot be invited as a partner");
+  });
+
+  it("should assign partner as seller when seller slot is empty", async () => {
+    vi.mocked(userRepository.getUserByEmail).mockResolvedValue({
+      id: 5,
+    } as any);
+
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      ownerId: 1,
+      sellerId: null,
+      buyerId: null,
+    } as any);
+
+    vi.mocked(contractRepository.updatePartner).mockResolvedValue({} as any);
+
+    await contractServices.invitePartner(1, "partner@test.com");
+
+    expect(contractRepository.updatePartner).toHaveBeenCalledWith(1, {
+      sellerId: 5,
+    });
+  });
+
+  it("should assign partner as buyer when seller exists and buyer slot is empty", async () => {
+    vi.mocked(userRepository.getUserByEmail).mockResolvedValue({
+      id: 5,
+    } as any);
+
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      ownerId: 1,
+      sellerId: 2,
+      buyerId: null,
+    } as any);
+
+    vi.mocked(contractRepository.updatePartner).mockResolvedValue({} as any);
+
+    await contractServices.invitePartner(1, "partner@test.com");
+
+    expect(contractRepository.updatePartner).toHaveBeenCalledWith(1, {
+      buyerId: 5,
+    });
+  });
+
+  it("should throw when both buyer and seller are already assigned", async () => {
+    vi.mocked(userRepository.getUserByEmail).mockResolvedValue({
+      id: 5,
+    } as any);
+
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      ownerId: 1,
+      sellerId: 2,
+      buyerId: 3,
+    } as any);
+
+    await expect(
+      contractServices.invitePartner(1, "partner@test.com"),
+    ).rejects.toThrow(
+      "Both buyer and seller are already assigned for this contract",
+    );
+  });
+});

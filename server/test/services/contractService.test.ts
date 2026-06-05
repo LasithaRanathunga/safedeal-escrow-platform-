@@ -2,9 +2,17 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as milestoneRepository from "../../repositories/milestoneRepository";
 import * as contractRepository from "../../repositories/contractRepository";
 import * as contractServices from "../../services/contractServices";
+import db from "../../db/db";
+import { registerConsoleShortcuts } from "vitest/node";
 
 vi.mock("../../repositories/milestoneRepository");
 vi.mock("../../repositories/contractRepository");
+
+vi.mock("../../db/db", () => ({
+  default: {
+    $transaction: vi.fn(),
+  },
+}));
 
 describe("updateContractInfo", () => {
   beforeEach(() => {
@@ -89,12 +97,12 @@ describe("updateContractInfo", () => {
   });
 });
 
-const txMock = {} as any;
-
 describe("updateContractInfoTx", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
+
+  const txMock = {} as any;
 
   it("should calculate total amount and update contract with latest deadline", async () => {
     const mockMilestones = [
@@ -168,5 +176,138 @@ describe("updateContractInfoTx", () => {
     await expect(
       contractServices.updateContractInfoTx("1", txMock),
     ).rejects.toThrow("Error updating contract");
+  });
+});
+
+describe("createMilestone", () => {
+  const txMock = {} as any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    (db.$transaction as any).mockImplementation(async (cb: any) => {
+      return cb(txMock);
+    });
+  });
+
+  it("should shift milestone order, create milestone and update contract info", async () => {
+    const createdMilestone = {
+      id: 1,
+      title: "UI Design",
+    };
+
+    vi.mocked(milestoneRepository.shiftMilestoneOrder).mockResolvedValue(
+      {} as any,
+    );
+
+    vi.mocked(milestoneRepository.createMilestone).mockResolvedValue(
+      createdMilestone as any,
+    );
+
+    vi.mocked(milestoneRepository.getMilestonesOfContractTx).mockResolvedValue([
+      {
+        amount: 300,
+        deadline: new Date("2026-06-30"),
+      },
+      {
+        amount: 200,
+        deadline: new Date("2026-06-15"),
+      },
+    ] as any);
+
+    vi.mocked(contractRepository.updateContractTx).mockResolvedValue({} as any);
+
+    const result = await contractServices.createMilestone({
+      title: "UI Design",
+      description: "Homepage Design",
+      amount: "500",
+      deadline: "2026-06-01",
+      order: "2",
+      contractId: "10",
+    });
+
+    expect(milestoneRepository.shiftMilestoneOrder).toHaveBeenCalledWith(
+      txMock,
+      10,
+      2,
+    );
+
+    expect(milestoneRepository.createMilestone).toHaveBeenCalledWith(txMock, {
+      title: "UI Design",
+      description: "Homepage Design",
+      amount: 500,
+      deadline: new Date("2026-06-01"),
+      order: 2,
+      contractId: 10,
+    });
+
+    expect(result).toEqual(createdMilestone);
+  });
+
+  it("should throw when shifting milestone order fails", async () => {
+    vi.mocked(milestoneRepository.shiftMilestoneOrder).mockRejectedValue(
+      new Error("DB Error"),
+    );
+
+    await expect(
+      contractServices.createMilestone({
+        title: "UI Design",
+        description: "Homepage Design",
+        amount: "500",
+        deadline: "2026-06-01",
+        order: "2",
+        contractId: "10",
+      }),
+    ).rejects.toThrow("DB Error");
+  });
+
+  it("should throw when milestone creation fails", async () => {
+    vi.mocked(milestoneRepository.shiftMilestoneOrder).mockResolvedValue(
+      {} as any,
+    );
+
+    vi.mocked(milestoneRepository.createMilestone).mockRejectedValue(
+      new Error("Create failed"),
+    );
+
+    await expect(
+      contractServices.createMilestone({
+        title: "UI Design",
+        description: "Homepage Design",
+        amount: "500",
+        deadline: "2026-06-01",
+        order: "2",
+        contractId: "10",
+      }),
+    ).rejects.toThrow("Create failed");
+  });
+
+  it("should throw when updating contract info fails", async () => {
+    vi.mocked(milestoneRepository.shiftMilestoneOrder).mockResolvedValue(
+      {} as any,
+    );
+
+    vi.mocked(milestoneRepository.createMilestone).mockResolvedValue({
+      id: 1,
+    } as any);
+
+    // vi.spyOn(contractServices, "updateContractInfoTx").mockRejectedValue(
+    //   new Error("Update failed"),
+    // );
+
+    vi.mocked(milestoneRepository.getMilestonesOfContractTx).mockRejectedValue(
+      new Error("DB Error"),
+    );
+
+    await expect(
+      contractServices.createMilestone({
+        title: "UI Design",
+        description: "Homepage Design",
+        amount: "500",
+        deadline: "2026-06-01",
+        order: "2",
+        contractId: "10",
+      }),
+    ).rejects.toThrow("Error fetching milestones");
   });
 });

@@ -124,7 +124,7 @@ function getActiveMilestone(
     }
   }
 
-  return activeMilestone;
+  return activeMilestone + 1;
 }
 
 function getUserRole(

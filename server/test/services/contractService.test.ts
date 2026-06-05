@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import * as milestoneRepository from "../../repositories/milestoneRepository";
 import * as contractRepository from "../../repositories/contractRepository";
+import * as userRepository from "../../repositories/userRepository";
 import * as contractServices from "../../services/contractServices";
 import db from "../../db/db";
 import { registerConsoleShortcuts } from "vitest/node";
 
 vi.mock("../../repositories/milestoneRepository");
 vi.mock("../../repositories/contractRepository");
+vi.mock("../../repositories/userRepository");
 
 vi.mock("../../db/db", () => ({
   default: {
@@ -291,10 +293,6 @@ describe("createMilestone", () => {
       id: 1,
     } as any);
 
-    // vi.spyOn(contractServices, "updateContractInfoTx").mockRejectedValue(
-    //   new Error("Update failed"),
-    // );
-
     vi.mocked(milestoneRepository.getMilestonesOfContractTx).mockRejectedValue(
       new Error("DB Error"),
     );
@@ -309,5 +307,123 @@ describe("createMilestone", () => {
         contractId: "10",
       }),
     ).rejects.toThrow("Error fetching milestones");
+  });
+});
+
+describe("getContractDetails", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should return null when contract does not exist", async () => {
+    vi.mocked(contractRepository.getContractById).mockResolvedValue(null);
+
+    const result = await contractServices.getContractDetails(1, {
+      id: "10",
+      email: "user@test.com",
+    });
+
+    expect(result).toBeNull();
+  });
+
+  it("should return contract details with owner, active milestone and buyer role", async () => {
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      id: 1,
+      ownerId: 100,
+      buyerId: 10,
+      sellerId: 20,
+      milestones: [
+        { order: 1, isPayed: true },
+        { order: 2, isPayed: true },
+        { order: 3, isPayed: false },
+        { order: 4, isPayed: false },
+      ],
+    } as any);
+
+    vi.mocked(userRepository.getUserById).mockResolvedValue({
+      id: 100,
+      email: "owner@test.com",
+    } as any);
+
+    const result = await contractServices.getContractDetails(1, {
+      id: "10",
+      email: "owner@test.com",
+    });
+
+    expect(result).toMatchObject({
+      isOwner: true,
+      activeMilestone: 3,
+      role: "buyer",
+    });
+  });
+
+  it("should return seller role when current user is seller", async () => {
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      id: 1,
+      ownerId: 100,
+      buyerId: 10,
+      sellerId: 20,
+      milestones: [{ order: 1, isPayed: true }],
+    } as any);
+
+    vi.mocked(userRepository.getUserById).mockResolvedValue({
+      id: 100,
+      email: "owner@test.com",
+    } as any);
+
+    const result = await contractServices.getContractDetails(1, {
+      id: "20",
+      email: "someone@test.com",
+    });
+
+    expect(result?.role).toBe("seller");
+  });
+
+  it("should return undefined role when user is neither buyer nor seller", async () => {
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      id: 1,
+      ownerId: 100,
+      buyerId: 10,
+      sellerId: 20,
+      milestones: [{ order: 1, isPayed: true }],
+    } as any);
+
+    vi.mocked(userRepository.getUserById).mockResolvedValue({
+      id: 100,
+      email: "owner@test.com",
+    } as any);
+
+    const result = await contractServices.getContractDetails(1, {
+      id: "999",
+      email: "other@test.com",
+    });
+
+    expect(result?.role).toBeUndefined();
+  });
+
+  it("should return activeMilestone as 0 when no milestone is paid", async () => {
+    vi.mocked(contractRepository.getContractById).mockResolvedValue({
+      id: 1,
+      ownerId: 100,
+      buyerId: 10,
+      sellerId: 20,
+      milestones: [
+        { order: 1, isPayed: false },
+        { order: 2, isPayed: false },
+      ],
+    } as any);
+
+    vi.mocked(userRepository.getUserById).mockResolvedValue({
+      id: 100,
+      email: "owner@test.com",
+    } as any);
+
+    const result = await contractServices.getContractDetails(1, {
+      id: "10",
+      email: "other@test.com",
+    });
+
+    expect(result?.activeMilestone).toBe(1);
+    expect(result?.isOwner).toBe(false);
   });
 });

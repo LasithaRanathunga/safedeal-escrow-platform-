@@ -500,3 +500,203 @@ describe("getContractDetails Integration", () => {
     expect(result?.activeMilestone).toBe(3);
   });
 });
+
+describe("invitePartner Integration", () => {
+  beforeEach(async () => {
+    await db.milestone.deleteMany();
+    await db.contract.deleteMany();
+    await db.refreshToken.deleteMany();
+    await db.user.deleteMany();
+  });
+
+  it("should throw when partner does not exist", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Contract",
+        description: "Description",
+        ownerId: owner.id,
+      },
+    });
+
+    await expect(
+      contractServices.invitePartner(contract.id, "missing@test.com"),
+    ).rejects.toThrow("Partner not found");
+  });
+
+  it("should throw when contract does not exist", async () => {
+    await db.user.create({
+      data: {
+        email: "partner@test.com",
+        password: "password",
+        name: "Partner",
+      },
+    });
+
+    await expect(
+      contractServices.invitePartner(99999, "partner@test.com"),
+    ).rejects.toThrow("Contract not found");
+  });
+
+  it("should throw when owner is invited as partner", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Contract",
+        description: "Description",
+        ownerId: owner.id,
+      },
+    });
+
+    await expect(
+      contractServices.invitePartner(contract.id, owner.email),
+    ).rejects.toThrow("Owner cannot be invited as a partner");
+  });
+
+  it("should assign seller when seller slot is empty", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const partner = await db.user.create({
+      data: {
+        email: "seller@test.com",
+        password: "password",
+        name: "Seller",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Contract",
+        description: "Description",
+        ownerId: owner.id,
+      },
+    });
+
+    await contractServices.invitePartner(contract.id, partner.email);
+
+    const updatedContract = await db.contract.findUnique({
+      where: {
+        id: contract.id,
+      },
+    });
+
+    expect(updatedContract?.sellerId).toBe(partner.id);
+    expect(updatedContract?.buyerId).toBeNull();
+  });
+
+  it("should assign buyer when seller already exists", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const seller = await db.user.create({
+      data: {
+        email: "seller@test.com",
+        password: "password",
+        name: "Seller",
+      },
+    });
+
+    const buyer = await db.user.create({
+      data: {
+        email: "buyer@test.com",
+        password: "password",
+        name: "Buyer",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Contract",
+        description: "Description",
+        ownerId: owner.id,
+        sellerId: seller.id,
+      },
+    });
+
+    await contractServices.invitePartner(contract.id, buyer.email);
+
+    const updatedContract = await db.contract.findUnique({
+      where: {
+        id: contract.id,
+      },
+    });
+
+    expect(updatedContract?.sellerId).toBe(seller.id);
+    expect(updatedContract?.buyerId).toBe(buyer.id);
+  });
+
+  it("should throw when buyer and seller are already assigned", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const seller = await db.user.create({
+      data: {
+        email: "seller@test.com",
+        password: "password",
+        name: "Seller",
+      },
+    });
+
+    const buyer = await db.user.create({
+      data: {
+        email: "buyer@test.com",
+        password: "password",
+        name: "Buyer",
+      },
+    });
+
+    const extraUser = await db.user.create({
+      data: {
+        email: "extra@test.com",
+        password: "password",
+        name: "Extra",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Contract",
+        description: "Description",
+        ownerId: owner.id,
+        sellerId: seller.id,
+        buyerId: buyer.id,
+      },
+    });
+
+    await expect(
+      contractServices.invitePartner(contract.id, extraUser.email),
+    ).rejects.toThrow(
+      "Both buyer and seller are already assigned for this contract",
+    );
+  });
+});

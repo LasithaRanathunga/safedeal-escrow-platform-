@@ -245,3 +245,50 @@ describe("updateContractInfoTx Integration", () => {
     expect(updatedContract?.amount).toBe(0);
   });
 });
+
+describe("createMilestone Integration", () => {
+  beforeEach(async () => {
+    await db.milestone.deleteMany();
+    await db.contract.deleteMany();
+    await db.user.deleteMany();
+  });
+
+  it("should create milestone and update contract totals", async () => {
+    const user = await db.user.create({
+      data: {
+        email: "test@test.com",
+        password: "password",
+        name: "Test User",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Test Contract",
+        description: "Test Description",
+        ownerId: user.id,
+      },
+    });
+
+    const deadline = new Date("2026-12-31");
+
+    const milestone = await contractServices.createMilestone({
+      title: "Milestone 1",
+      description: "Description",
+      amount: "1000",
+      deadline: deadline.toISOString(),
+      order: "1",
+      contractId: contract.id.toString(),
+    });
+
+    expect(milestone.title).toBe("Milestone 1");
+    expect(milestone.order).toBe(1);
+
+    const updatedContract = await db.contract.findUnique({
+      where: { id: contract.id },
+    });
+
+    expect(updatedContract?.amount).toBe(1000);
+    expect(updatedContract?.endDate?.getTime()).toBe(deadline.getTime());
+  });
+});

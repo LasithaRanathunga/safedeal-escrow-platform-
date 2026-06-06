@@ -1,9 +1,6 @@
 import type { Request, Response } from "express";
 import * as contractRepo from "../repositories/contractRepository";
 import * as contractServices from "../services/contractServices";
-import * as userRepo from "../repositories/userRepository";
-import db from "../db/db";
-import { type milestone, type contract } from "@prisma/client";
 
 export async function createContract(
   req: Request & { user?: any },

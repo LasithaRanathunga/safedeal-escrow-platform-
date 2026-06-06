@@ -268,3 +268,73 @@ describe("getAllContracts controller", () => {
     });
   });
 });
+
+describe("invitePartner controller", () => {
+  let req: any;
+  let res: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    req = {
+      body: {
+        contractId: "1",
+        partnerEmail: "test@test.com",
+      },
+      user: {
+        id: "1",
+      },
+    };
+
+    res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+  });
+
+  it("should invite partner successfully", async () => {
+    (contractServices.invitePartner as any).mockResolvedValue(undefined);
+
+    await contractControllers.invitePartner(req, res);
+
+    expect(contractServices.invitePartner).toHaveBeenCalledWith(
+      1,
+      "test@test.com",
+    );
+
+    expect(res.status).toHaveBeenCalledWith(200);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Partner invited successfully",
+    });
+  });
+
+  it("should return 500 when service throws normal error", async () => {
+    (contractServices.invitePartner as any).mockRejectedValue(
+      new Error("Partner not found"),
+    );
+
+    await contractControllers.invitePartner(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Partner not found",
+    });
+  });
+
+  it("should return custom statusCode when service throws custom error", async () => {
+    (contractServices.invitePartner as any).mockRejectedValue({
+      statusCode: 404,
+      message: "Contract not found",
+    });
+
+    await contractControllers.invitePartner(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Contract not found",
+    });
+  });
+});

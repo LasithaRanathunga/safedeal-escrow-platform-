@@ -136,3 +136,80 @@ describe("createMilestone controller", () => {
     });
   });
 });
+
+describe("getContract controller", () => {
+  let req: any;
+  let res: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    req = {
+      params: {
+        contractId: "1",
+      },
+      user: {
+        id: "1",
+        email: "test@test.com",
+      },
+    };
+
+    res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+  });
+
+  it("should return contract with 200 status", async () => {
+    const mockContract = {
+      id: 1,
+      title: "Test Contract",
+    };
+
+    (contractServices.getContractDetails as any).mockResolvedValue(
+      mockContract,
+    );
+
+    await contractControllers.getContract(req, res);
+
+    expect(contractServices.getContractDetails).toHaveBeenCalledWith(
+      1,
+      req.user,
+    );
+
+    expect(res.status).toHaveBeenCalledWith(200);
+
+    expect(res.json).toHaveBeenCalledWith({
+      contract: mockContract,
+    });
+  });
+
+  it("should return 404 when contract is not found", async () => {
+    (contractServices.getContractDetails as any).mockResolvedValue(null);
+
+    await contractControllers.getContract(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(404);
+
+    expect(res.json).toHaveBeenCalledWith({
+      status: "error",
+      code: "NO_CONTRACT_FOUND",
+      message: "Contract not found",
+    });
+  });
+
+  it("should return 500 when service throws error", async () => {
+    (contractServices.getContractDetails as any).mockRejectedValue(
+      new Error("DB error"),
+    );
+
+    await contractControllers.getContract(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Error fetching contract",
+      error: expect.any(Error),
+    });
+  });
+});

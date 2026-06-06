@@ -292,3 +292,211 @@ describe("createMilestone Integration", () => {
     expect(updatedContract?.endDate?.getTime()).toBe(deadline.getTime());
   });
 });
+
+describe("getContractDetails Integration", () => {
+  beforeEach(async () => {
+    await db.milestone.deleteMany();
+    await db.contract.deleteMany();
+    await db.refreshToken.deleteMany();
+    await db.user.deleteMany();
+  });
+
+  it("should return null when contract does not exist", async () => {
+    const result = await contractServices.getContractDetails(99999, {
+      id: "1",
+      email: "test@test.com",
+    });
+
+    expect(result).toBeNull();
+  });
+
+  it("should return contract details with buyer role and owner status", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const buyer = await db.user.create({
+      data: {
+        email: "buyer@test.com",
+        password: "password",
+        name: "Buyer",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Test Contract",
+        description: "Test Description",
+        ownerId: owner.id,
+        buyerId: buyer.id,
+      },
+    });
+
+    await db.milestone.createMany({
+      data: [
+        {
+          title: "Milestone 1",
+          description: "First milestone",
+          amount: 100,
+          order: 1,
+          isPayed: true,
+          deadline: new Date("2026-01-01"),
+          contractId: contract.id,
+        },
+        {
+          title: "Milestone 2",
+          description: "Second milestone",
+          amount: 200,
+          order: 2,
+          isPayed: false,
+          deadline: new Date("2026-02-01"),
+          contractId: contract.id,
+        },
+      ],
+    });
+
+    const result = await contractServices.getContractDetails(contract.id, {
+      id: buyer.id.toString(),
+      email: owner.email,
+    });
+
+    expect(result).not.toBeNull();
+    expect(result?.id).toBe(contract.id);
+    expect(result?.isOwner).toBe(true);
+    expect(result?.role).toBe("buyer");
+    expect(result?.activeMilestone).toBe(2);
+  });
+
+  it("should return seller role", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const seller = await db.user.create({
+      data: {
+        email: "seller@test.com",
+        password: "password",
+        name: "Seller",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Test Contract",
+        description: "Test Description",
+        ownerId: owner.id,
+        sellerId: seller.id,
+      },
+    });
+
+    const result = await contractServices.getContractDetails(contract.id, {
+      id: seller.id.toString(),
+      email: seller.email,
+    });
+
+    expect(result).not.toBeNull();
+    expect(result?.role).toBe("seller");
+    expect(result?.isOwner).toBe(false);
+  });
+
+  it("should return undefined role when user is neither buyer nor seller", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const stranger = await db.user.create({
+      data: {
+        email: "stranger@test.com",
+        password: "password",
+        name: "Stranger",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Test Contract",
+        description: "Test Description",
+        ownerId: owner.id,
+      },
+    });
+
+    const result = await contractServices.getContractDetails(contract.id, {
+      id: stranger.id.toString(),
+      email: stranger.email,
+    });
+
+    expect(result).not.toBeNull();
+    expect(result?.role).toBeUndefined();
+    expect(result?.isOwner).toBe(false);
+  });
+
+  it("should calculate active milestone correctly when multiple milestones are paid", async () => {
+    const owner = await db.user.create({
+      data: {
+        email: "owner@test.com",
+        password: "password",
+        name: "Owner",
+      },
+    });
+
+    const contract = await db.contract.create({
+      data: {
+        title: "Test Contract",
+        description: "Test Description",
+        ownerId: owner.id,
+      },
+    });
+
+    await db.milestone.createMany({
+      data: [
+        {
+          title: "Milestone 1",
+          description: "M1",
+          amount: 100,
+          order: 1,
+          isPayed: true,
+          deadline: new Date(),
+          contractId: contract.id,
+        },
+        {
+          title: "Milestone 2",
+          description: "M2",
+          amount: 100,
+          order: 2,
+          isPayed: true,
+          deadline: new Date(),
+          contractId: contract.id,
+        },
+        {
+          title: "Milestone 3",
+          description: "M3",
+          amount: 100,
+          order: 3,
+          isPayed: false,
+          deadline: new Date(),
+          contractId: contract.id,
+        },
+      ],
+    });
+
+    const result = await contractServices.getContractDetails(contract.id, {
+      id: owner.id.toString(),
+      email: owner.email,
+    });
+
+    expect(result).not.toBeNull();
+    expect(result?.activeMilestone).toBe(3);
+  });
+});

@@ -213,3 +213,58 @@ describe("getContract controller", () => {
     });
   });
 });
+
+describe("getAllContracts controller", () => {
+  let req: any;
+  let res: any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    req = {
+      user: {
+        id: "1",
+      },
+    };
+
+    res = {
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    };
+
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  it("should return contracts with 200 status", async () => {
+    const mockContracts = [
+      { id: 1, title: "Contract 1" },
+      { id: 2, title: "Contract 2" },
+    ];
+
+    (contractServices.getUserContracts as any).mockResolvedValue(mockContracts);
+
+    await contractControllers.getAllContracts(req, res);
+
+    expect(contractServices.getUserContracts).toHaveBeenCalledWith("1");
+
+    expect(res.status).toHaveBeenCalledWith(200);
+
+    expect(res.json).toHaveBeenCalledWith({
+      contracts: mockContracts,
+    });
+  });
+
+  it("should return 500 when service throws error", async () => {
+    (contractServices.getUserContracts as any).mockRejectedValue(
+      new Error("DB error"),
+    );
+
+    await contractControllers.getAllContracts(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(500);
+
+    expect(res.json).toHaveBeenCalledWith({
+      message: "Error fetching contracts",
+    });
+  });
+});

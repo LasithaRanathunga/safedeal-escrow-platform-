@@ -1,14 +1,11 @@
-import { Router } from "express";
-import upload from "../multer/upload";
-import db from "../db/db";
 import { Request, Response, NextFunction } from "express";
 import path from "path";
 import fs from "fs";
 import archiver from "archiver";
 import crypto from "crypto";
 
-import * as milestoneRepositoey from "../repositories/milestoneRepository";
 import * as contractRepository from "../repositories/contractRepository";
+import * as fileHandlerServices from "../services/fileHandlerServices";
 
 export async function uploadFile(req: Request, res: Response) {
   try {
@@ -19,25 +16,32 @@ export async function uploadFile(req: Request, res: Response) {
       return res.status(400).json({ error: "File not uploaded properly" });
     }
 
-    if (type === "preview") {
-      const savedfile = await milestoneRepositoey.updateMilestone(
-        parseInt(contractId as string, 10),
-        parseInt(itemId as string, 10),
-        {
-          previewPath: filePath,
-          previewDate: new Date(),
-        },
-      );
-    } else if (type === "final") {
-      const savedfile = await milestoneRepositoey.updateMilestone(
-        parseInt(contractId as string, 10),
-        parseInt(itemId as string, 10),
-        {
-          finalPath: filePath,
-          finalDate: new Date(),
-        },
-      );
-    }
+    // if (type === "preview") {
+    //   const savedfile = await milestoneRepositoey.updateMilestone(
+    //     parseInt(contractId as string, 10),
+    //     parseInt(itemId as string, 10),
+    //     {
+    //       previewPath: filePath,
+    //       previewDate: new Date(),
+    //     },
+    //   );
+    // } else if (type === "final") {
+    //   const savedfile = await milestoneRepositoey.updateMilestone(
+    //     parseInt(contractId as string, 10),
+    //     parseInt(itemId as string, 10),
+    //     {
+    //       finalPath: filePath,
+    //       finalDate: new Date(),
+    //     },
+    //   );
+    // }
+
+    await fileHandlerServices.uploadFile({
+      contractId: Number(contractId),
+      itemId: Number(itemId),
+      type: String(type),
+      filePath,
+    });
 
     res.status(200).json({
       message: "File uploaded successfully",

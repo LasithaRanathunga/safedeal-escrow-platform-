@@ -2,6 +2,12 @@ import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import db from "../../db/db";
 import * as contractServices from "../../services/contractServices";
 
+afterAll(async () => {
+  await db.milestone.deleteMany();
+  await db.contract.deleteMany();
+  await db.user.deleteMany();
+});
+
 describe("updateContractInfo Integration", () => {
   beforeEach(async () => {
     await db.milestone.deleteMany();

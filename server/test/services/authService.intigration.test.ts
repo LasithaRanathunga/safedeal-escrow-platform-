@@ -7,6 +7,12 @@ import becrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import test from "node:test";
 
+afterAll(async () => {
+  await db.milestone.deleteMany();
+  await db.contract.deleteMany();
+  await db.user.deleteMany();
+});
+
 describe("createUser Intigration test", () => {
   const testUser = {
     email: "user@test.com",

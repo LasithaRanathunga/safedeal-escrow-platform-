@@ -11,10 +11,12 @@ describe("userRepository", () => {
 
   beforeAll(async () => {
     await db.user.deleteMany();
+    await db.refreshToken.deleteMany();
   });
 
   afterAll(async () => {
     await db.user.deleteMany();
+    await db.refreshToken.deleteMany();
   });
 
   describe("createUser", () => {

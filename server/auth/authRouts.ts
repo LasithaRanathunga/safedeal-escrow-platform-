@@ -4,7 +4,7 @@ import { body } from "express-validator";
 import type { ValidationChain } from "express-validator";
 import bcrypt from "bcrypt";
 import "dotenv/config";
-import { authenticateToken } from "./authUtils";
+import authenticateToken from "../middleware/authenticateTokenMiddleware";
 
 import {
   getAccessToken,
@@ -147,7 +147,7 @@ router.post(
     }
 
     res.status(200).json({ message: "Logged out successfully" });
-  }
+  },
 );
 
 // ######### Re-New Access Token #########

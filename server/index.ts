@@ -5,13 +5,13 @@ import express, {
 } from "express";
 import cookieParser from "cookie-parser";
 import authRouter from "./auth/authRouts";
-import { authenticateToken } from "./auth/authUtils";
 import contractRouts from "./contract/contractRouts";
 import userRouts from "./user/userRouts";
 import cors from "cors";
 import fileUploadRouts from "./handleFiles/fileHandler";
 import multer from "multer";
 import payment from "./payment/payment";
+import authenticateToken from "./middleware/authenticateTokenMiddleware";
 
 const app = express();
 
